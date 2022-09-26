@@ -52,6 +52,7 @@ func queryNotionTaskDB() []Task {
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("Notion-Version", "2022-06-28")
 	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", "Bearer secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934")
 
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
@@ -67,8 +68,12 @@ func queryNotionTaskDB() []Task {
 		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
 		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
 		due := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
-		class := properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["name"].(string)
-		classColor := properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
+		class := ""
+		classColor := "blue"
+		if properties["Class"] != nil {
+			class = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["name"].(string)
+			classColor = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
+		}
 		// fmt.Printf("(%s) %s due %s\n", class, name, due)
 		tasks = append(tasks, Task{name, due, class, classColor})
 	}
