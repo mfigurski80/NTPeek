@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
 func formatRelativeDate(date string) string {
 	// convert "2022-07-01" to "next Monday"
 	t, _ := time.Parse("2006-01-02", date[:10])
-	diff := int64((time.Until(t).Hours() + 4) / 24)
+	hoursDiff := time.Until(t).Hours()
+	diff := math.Ceil((hoursDiff) / 24)
+	// fmt.Printf("%v -> %v", hoursDiff/24, diff)
 	if diff == 0 {
 		return "Today"
 	}
@@ -19,7 +22,7 @@ func formatRelativeDate(date string) string {
 		return "Yesterday"
 	}
 	if diff < 10 && diff > -7 {
-		if diff >= 7 {
+		if diff >= 8 {
 			return "next " + t.Weekday().String()
 		}
 		if diff > 0 {
