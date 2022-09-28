@@ -7,8 +7,8 @@ import (
 
 func formatRelativeDate(date string) string {
 	// convert "2022-07-01" to "next Monday"
-	t, _ := time.Parse("2006-01-02", date)
-	diff := t.Day() - time.Now().Day()
+	t, _ := time.Parse("2006-01-02", date[:10])
+	diff := int64((time.Until(t).Hours() + 4) / 24)
 	if diff == 0 {
 		return "Today"
 	}
