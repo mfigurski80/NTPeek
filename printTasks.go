@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"time"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func formatRelativeDate(date string) string {
@@ -36,20 +38,22 @@ func formatRelativeDate(date string) string {
 	return fmt.Sprint(-diff) + " days ago"
 }
 
-var colorReset = "\033[0m"
-var bold = "\033[1m"
-var weak = "\033[2m"
-var colorMap = map[string]string{
-	"pink":    "\033[48;5;217;30m",
-	"red":     "\033[48;5;203;30m",
-	"orange":  "\033[48;5;208;30m",
-	"yellow":  "\033[48;5;229;30m",
-	"green":   "\033[48;5;120;30m",
-	"blue":    "\033[48;5;45;30m",
-	"purple":  "\033[48;5;147;30m",
-	"brown":   "\033[48;5;101m",
-	"gray":    "\033[48;5;250;30m",
-	"default": "\033[48;5;240m",
+type TextHighlight struct {
+	Bg   string
+	Fore string
+}
+
+var colorMap = map[string]TextHighlight{
+	"pink":    {"218", "0"},
+	"red":     {"203", "0"},
+	"orange":  {"208", "0"},
+	"yellow":  {"219", "0"},
+	"green":   {"120", "0"},
+	"blue":    {"39", "0"},
+	"purple":  {"141", "15"},
+	"brown":   {"101", "15"},
+	"gray":    {"248", "0"},
+	"default": {"240", "15"},
 }
 
 func printTasks(tasks []Task) {
@@ -62,12 +66,26 @@ func printTasks(tasks []Task) {
 		classLengths[i] = len(task.Class)
 	}
 
-	for i, task := range tasks {
-		classOffset := maxClassLen - classLengths[i]
-		class := colorMap[task.ClassColor] + task.Class + colorReset
-		name := bold + task.Name + colorReset
-		due := formatRelativeDate(task.Due)
+	for _, task := range tasks {
+		hi := colorMap[task.ClassColor]
+		class := lipgloss.NewStyle().
+			Background(lipgloss.Color(hi.Bg)).
+			Foreground(lipgloss.Color(hi.Fore)).
+			Render(task.Class)
+		class = lipgloss.NewStyle().
+			Width(maxClassLen).
+			Align(lipgloss.Right).
+			Render(class)
+
+		name := lipgloss.NewStyle().
+			Bold(true).
+			Render(task.Name)
+
+		due := lipgloss.NewStyle().
+			Faint(true).
+			Render(fmt.Sprintf("(%s)", formatRelativeDate(task.Due)))
+
 		// fmt.Printf("%s %s %s\n", class, name, due)
-		fmt.Printf("%*s%s | %s  %s(%s)%s\n", classOffset, "", class, name, weak, due, colorReset)
+		fmt.Printf("%s | %s  %s\n", class, name, due)
 	}
 }
