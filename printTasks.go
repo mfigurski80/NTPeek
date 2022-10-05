@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 )
 
 func formatRelativeDate(date string) string {
@@ -57,6 +58,7 @@ var colorMap = map[string]TextHighlight{
 }
 
 func printTasks(tasks []Task) {
+	lipgloss.SetColorProfile(termenv.TrueColor)
 	maxClassLen := 0
 	classLengths := make([]int, len(tasks))
 	for i, task := range tasks {
