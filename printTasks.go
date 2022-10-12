@@ -51,7 +51,7 @@ var colorMap = map[string]TextHighlight{
 	"yellow":  {"219", "0"},
 	"green":   {"120", "0"},
 	"blue":    {"39", "0"},
-	"purple":  {"141", "15"},
+	"purple":  {"141", "0"},
 	"brown":   {"101", "15"},
 	"gray":    {"248", "0"},
 	"default": {"240", "15"},
