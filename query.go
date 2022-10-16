@@ -54,7 +54,10 @@ func queryNotionTaskDB() []Task {
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", "Bearer secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	var result map[string]interface{}
