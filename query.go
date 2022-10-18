@@ -19,14 +19,14 @@ func parseNotionRichText(richText []interface{}) string {
 
 type Task struct {
 	Name       string
-	Due        string
+	Due        time.Time
 	Class      string
 	ClassColor string
 }
 
 func queryNotionTaskDB() []Task {
 	url := "https://api.notion.com/v1/databases/d048f752003e4c199533c9a39608917e/query"
-	getBefore := time.Now().AddDate(0, 0, 8).Format("2006-01-02")
+	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
 		"page_size": 100,
 		"filter": {
@@ -69,14 +69,19 @@ func queryNotionTaskDB() []Task {
 	var tasks []Task
 	for _, entry := range result["results"].([]interface{}) {
 		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
+
 		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
-		due := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
+
+		due_txt := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
+		due, _ := time.Parse("2006-01-02", due_txt[:10])
+
 		class := ""
 		classColor := "blue"
 		if properties["Class"] != nil {
 			class = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["name"].(string)
 			classColor = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
 		}
+
 		// fmt.Printf("(%s) %s due %s\n", class, name, due)
 		tasks = append(tasks, Task{name, due, class, classColor})
 	}

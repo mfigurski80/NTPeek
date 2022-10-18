@@ -9,9 +9,9 @@ import (
 	"github.com/muesli/termenv"
 )
 
-func formatRelativeDate(date string) string {
+func formatRelativeDate(t time.Time) string {
 	// convert "2022-07-01" to "next Monday"
-	t, _ := time.Parse("2006-01-02", date[:10])
+	// t, _ := time.Parse("2006-01-02", date[:10])
 	hoursDiff := time.Until(t).Hours()
 	diff := math.Ceil((hoursDiff) / 24)
 	// fmt.Printf("%v -> %v", hoursDiff/24, diff)
@@ -83,10 +83,20 @@ func printTasks(tasks []Task) {
 			Bold(true).
 			Render(task.Name)
 
-		due := lipgloss.NewStyle().
-			Faint(true).
-			Render(fmt.Sprintf("(%s)", formatRelativeDate(task.Due)))
-
+		relDate := fmt.Sprintf("(%s)", formatRelativeDate(task.Due))
+		overdue := time.Until(task.Due).Hours()+24 < 0
+		due := relDate
+		if overdue {
+			hi := colorMap["red"]
+			due = lipgloss.NewStyle().
+				Background(lipgloss.Color(hi.Bg)).
+				Foreground(lipgloss.Color(hi.Fore)).
+				Render(relDate)
+		} else {
+			due = lipgloss.NewStyle().
+				Faint(!overdue).
+				Render(relDate)
+		}
 		// fmt.Printf("%s %s %s\n", class, name, due)
 		fmt.Printf("%s | %s  %s\n", class, name, due)
 	}
