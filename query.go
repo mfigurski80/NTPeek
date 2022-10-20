@@ -19,6 +19,7 @@ func parseNotionRichText(richText []interface{}) string {
 
 type Task struct {
 	Name       string
+	Id         string
 	Due        time.Time
 	Tags       []string
 	Class      string
@@ -74,6 +75,7 @@ func queryNotionTaskDB() []Task {
 		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
 
 		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
+		id := entry.(map[string]interface{})["id"].(string)
 
 		due_txt := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
 		due, _ := time.ParseInLocation("2006-01-02", due_txt[:10], loc)
@@ -94,7 +96,7 @@ func queryNotionTaskDB() []Task {
 		}
 
 		// fmt.Printf("(%s) %s [%v] due %s\n", class, name, tags, due)
-		tasks = append(tasks, Task{name, due, tags, class, classColor})
+		tasks = append(tasks, Task{name, id, due, tags, class, classColor})
 	}
 	return tasks
 }
