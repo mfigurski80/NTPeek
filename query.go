@@ -20,6 +20,7 @@ func parseNotionRichText(richText []interface{}) string {
 type Task struct {
 	Name       string
 	Due        time.Time
+	Tags       []string
 	Class      string
 	ClassColor string
 }
@@ -82,8 +83,16 @@ func queryNotionTaskDB() []Task {
 			classColor = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
 		}
 
-		// fmt.Printf("(%s) %s due %s\n", class, name, due)
-		tasks = append(tasks, Task{name, due, class, classColor})
+		tags := []string{}
+		if properties["Tags"] != nil {
+			for _, tag := range properties["Tags"].(map[string]interface{})["multi_select"].([]interface{}) {
+				// append lowercase tag
+				tags = append(tags, strings.ToLower(tag.(map[string]interface{})["name"].(string)))
+			}
+		}
+
+		// fmt.Printf("(%s) %s [%v] due %s\n", class, name, tags, due)
+		tasks = append(tasks, Task{name, due, tags, class, classColor})
 	}
 	return tasks
 }

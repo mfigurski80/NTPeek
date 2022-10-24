@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/muesli/termenv"
 )
 
@@ -57,6 +58,14 @@ var colorMap = map[string]TextHighlight{
 	"default": {"240", "15"},
 }
 
+// make set of un/important tag strings
+var importantTags = mapset.NewSetFromSlice([]interface{}{
+	"exam", "projecttask", "presentation",
+})
+var unimportantTags = mapset.NewSetFromSlice([]interface{}{
+	"meeting", "read", "utility",
+})
+
 func printTasks(tasks []Task) {
 	lipgloss.SetColorProfile(termenv.TrueColor)
 	maxClassLen := 0
@@ -67,8 +76,8 @@ func printTasks(tasks []Task) {
 		}
 		classLengths[i] = len(task.Class)
 	}
-
 	for _, task := range tasks {
+		// GET CLASS + FORMAT
 		hi := colorMap[task.ClassColor]
 		class := lipgloss.NewStyle().
 			Background(lipgloss.Color(hi.Bg)).
@@ -79,10 +88,21 @@ func printTasks(tasks []Task) {
 			Align(lipgloss.Right).
 			Render(class)
 
+		// GET IMPORTANCE
+		importance := " "
+		for _, tag := range task.Tags {
+			if importantTags.Contains(tag) {
+				importance = "!"
+				break
+			}
+		}
+
+		// GET TASK TEXT + FORMAT
 		name := lipgloss.NewStyle().
 			Bold(true).
 			Render(task.Name)
 
+		// GET DUE DATE + FORMAT
 		relDate := fmt.Sprintf("(%s)", formatRelativeDate(task.Due))
 		overdue := time.Until(task.Due).Hours()+24 < 0
 		due := relDate
@@ -97,7 +117,9 @@ func printTasks(tasks []Task) {
 				Faint(!overdue).
 				Render(relDate)
 		}
+
+		// PRINT
 		// fmt.Printf("%s %s %s\n", class, name, due)
-		fmt.Printf("%s | %s  %s\n", class, name, due)
+		fmt.Printf("%s |%s%s  %s\n", class, importance, name, due)
 	}
 }
