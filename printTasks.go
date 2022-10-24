@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	mapset "github.com/deckarep/golang-set"
+	// mapset "github.com/deckarep/golang-set"
 	"github.com/muesli/termenv"
 )
 
@@ -58,14 +58,6 @@ var colorMap = map[string]TextHighlight{
 	"default": {"240", "15"},
 }
 
-// make set of un/important tag strings
-var importantTags = mapset.NewSetFromSlice([]interface{}{
-	"exam", "projecttask", "presentation", "project", "paper",
-})
-var unimportantTags = mapset.NewSetFromSlice([]interface{}{
-	"meeting", "read", "utility",
-})
-
 func printTasks(tasks []Task) {
 	lipgloss.SetColorProfile(termenv.TrueColor)
 	maxClassLen := 0
@@ -89,17 +81,13 @@ func printTasks(tasks []Task) {
 			Render(class)
 
 		// GET IMPORTANCE
-		importance := " "
-		for _, tag := range task.Tags {
-			if importantTags.Contains(tag) {
-				importance = "!"
-				break
-			}
-		}
+		importanceVal := parseImportance(task)
+		importance := formatImportance(importanceVal, [3]string{"│ ", "│ ", "│!"})
 
 		// GET TASK TEXT + FORMAT
 		name := lipgloss.NewStyle().
-			Bold(true).
+			Bold(importanceVal != LO).
+			Faint(importanceVal == LO).
 			Render(task.Name)
 
 		// GET DUE DATE + FORMAT
@@ -120,6 +108,6 @@ func printTasks(tasks []Task) {
 
 		// PRINT
 		// fmt.Printf("%s %s %s\n", class, name, due)
-		fmt.Printf("%s |%s%s  %s\n", class, importance, name, due)
+		fmt.Printf("%s %s%s  %s\n", class, importance, name, due)
 	}
 }
