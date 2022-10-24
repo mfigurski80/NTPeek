@@ -60,7 +60,7 @@ var colorMap = map[string]TextHighlight{
 
 // make set of un/important tag strings
 var importantTags = mapset.NewSetFromSlice([]interface{}{
-	"exam", "projecttask", "presentation",
+	"exam", "projecttask", "presentation", "project", "paper",
 })
 var unimportantTags = mapset.NewSetFromSlice([]interface{}{
 	"meeting", "read", "utility",
