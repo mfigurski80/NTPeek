@@ -25,6 +25,8 @@ type Task struct {
 	ClassColor string
 }
 
+var loc, _ = time.LoadLocation("Local")
+
 func queryNotionTaskDB() []Task {
 	url := "https://api.notion.com/v1/databases/d048f752003e4c199533c9a39608917e/query"
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
@@ -74,7 +76,7 @@ func queryNotionTaskDB() []Task {
 		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
 
 		due_txt := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
-		due, _ := time.Parse("2006-01-02", due_txt[:10])
+		due, _ := time.ParseInLocation("2006-01-02", due_txt[:10], loc)
 
 		class := ""
 		classColor := "blue"
