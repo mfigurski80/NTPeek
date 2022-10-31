@@ -38,7 +38,7 @@ func stringifyDateAsRelative(t time.Time) string {
 
 func formatRelativeDate(t time.Time) string {
 	relDate := fmt.Sprintf("(%s)", stringifyDateAsRelative(t))
-	overdue := !time.Now().Before(t)
+	overdue := time.Until(t).Hours() < -24
 	if overdue {
 		hi := colorMap["red"]
 		return lipgloss.NewStyle().
