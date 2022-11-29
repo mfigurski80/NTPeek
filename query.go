@@ -29,7 +29,7 @@ type Task struct {
 var loc, _ = time.LoadLocation("Local")
 
 func queryNotionTaskDB() []Task {
-	url := "https://api.notion.com/v1/databases/d048f752003e4c199533c9a39608917e/query"
+	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", NotionDatabaseId)
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
 		"page_size": 100,
@@ -56,7 +56,7 @@ func queryNotionTaskDB() []Task {
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("Notion-Version", "2022-06-28")
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("authorization", "Bearer secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", NotionAuthorizationSecret))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
