@@ -6,10 +6,10 @@ type TextHighlight struct {
 }
 
 var colorMap = map[string]TextHighlight{
-	"pink":    {"218", "0"},
+	"pink":    {"212", "0"},
 	"red":     {"203", "0"},
 	"orange":  {"208", "0"},
-	"yellow":  {"219", "0"},
+	"yellow":  {"221", "0"},
 	"green":   {"120", "0"},
 	"blue":    {"39", "0"},
 	"purple":  {"141", "0"},
