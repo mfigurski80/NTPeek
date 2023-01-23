@@ -1,9 +1,24 @@
 # Notion Database Peek
 
-Script to pull tasks from a Notion database and display it in a formatted list. Note that this is 'optimized' (read hard-coded) -- installing this script implies you're:
+Library designed to read, and perform small updates to a Notion Database from your terminal, perfect for cloud-based todos.
 
-a) adding your own extension bearer token to the http headers -- see `query.go`
-b) adjusting some of the query field names to match your own database -- also `query.go`
-c) building this script yourself with `go build && go install`.
+This library is still under development. Note that it is currently somewhat 'optimized' (read hard-coded) -- installing this script implies you're:
+
+- adding your own extension bearer token to the http headers -- ie defining `NOTION_TOKEN` in your `.env` file
+
+- adjusting some of the query field names to match your own database -- in `query.go`
+
+- building this script yourself with `go generate && go build && go install`.
+
+
+## Usage
+
+Default usage requires just the database id (long string id in url):
+
+![Peeking Usage](images/usage.gif)
+
+Version and Help text can be viewed by calling the tool with `v` or `h` respectively
+
+## Screenshots
 
 ![Notion Database Peek](images/Demo.png)
