@@ -1,6 +1,5 @@
 include .env
-export
-LDFLAGS="-X main.NotionAuthorizationSecret=${NOTION_TOKEN}"
+export LDFLAGS="-X main.NotionAuthorizationSecret=${NOTION_TOKEN}"
 
 run:
 	go run -ldflags ${LDFLAGS} . $(ARGS)

@@ -47,13 +47,13 @@ func printTasks(tasks []Task) {
 		due := formatRelativeDate(task.Due)
 
 		// GET TASK ID
-		id := lipgloss.NewStyle().
-			Faint(true).
-			Render(fmt.Sprintf("%.2s", task.Id))
+		// id := lipgloss.NewStyle().
+		// Faint(true).
+		// Render(fmt.Sprintf("%.2s", task.Id))
 
 		// PRINT
 		// fmt.Printf("%s %s %s\n", class, name, due)
-		fmt.Printf("%s %s%s  %s %s\n", class, importance, name, due, id)
+		fmt.Printf("%s %s%s  %s\n", class, importance, name, due)
 
 	}
 }

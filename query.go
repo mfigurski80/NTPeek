@@ -28,8 +28,8 @@ type Task struct {
 
 var loc, _ = time.LoadLocation("Local")
 
-func queryNotionTaskDB() []Task {
-	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", NotionDatabaseId)
+func queryNotionTaskDB(dbId string) []Task {
+	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
 		"page_size": 100,
@@ -83,8 +83,9 @@ func queryNotionTaskDB() []Task {
 		class := ""
 		classColor := "blue"
 		if properties["Class"] != nil {
-			class = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["name"].(string)
-			classColor = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
+			cf := properties["Class"].(map[string]interface{})["select"].(map[string]interface{})
+			class = cf["name"].(string)
+			classColor = cf["color"].(string)
 		}
 
 		tags := []string{}

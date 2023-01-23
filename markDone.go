@@ -39,7 +39,7 @@ func markNotionTasksDone(taskIdRefs []string) {
 	// fetch tasks asynchronously
 	tasksChannel := make(chan []Task)
 	go func() {
-		tasksChannel <- queryNotionTaskDB()
+		tasksChannel <- queryNotionTaskDB(NotionDatabaseId)
 	}()
 
 	// verify input real quick
