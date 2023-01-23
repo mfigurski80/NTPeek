@@ -1,13 +1,20 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"os"
 )
 
 var NotionDatabaseId string
+
+//go:generate bash build/get_auth_token.sh
+//go:embed build/auth_token.txt
 var NotionAuthorizationSecret string
+
+//go:generate bash build/get_version.sh
+//go:embed build/version.txt
 var Version string
 
 func main() {
@@ -24,7 +31,8 @@ func main() {
 		showUsage()
 		return
 	case "v", "-v", "--version":
-		fmt.Println("nt version", Version)
+		fmt.Println("nt version: %s", Version)
+		return
 	default:
 		NotionDatabaseId = os.Args[1]
 	}
