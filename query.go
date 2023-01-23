@@ -19,6 +19,7 @@ func parseNotionRichText(richText []interface{}) string {
 
 type Task struct {
 	Name       string
+	Id         string
 	Due        time.Time
 	Tags       []string
 	Class      string
@@ -27,8 +28,8 @@ type Task struct {
 
 var loc, _ = time.LoadLocation("Local")
 
-func queryNotionTaskDB() []Task {
-	url := "https://api.notion.com/v1/databases/d048f752003e4c199533c9a39608917e/query"
+func queryNotionTaskDB(dbId string) []Task {
+	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
 		"page_size": 100,
@@ -55,7 +56,7 @@ func queryNotionTaskDB() []Task {
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("Notion-Version", "2022-06-28")
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("authorization", "Bearer secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", NotionAuthorizationSecret))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -74,6 +75,7 @@ func queryNotionTaskDB() []Task {
 		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
 
 		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
+		id := entry.(map[string]interface{})["id"].(string)
 
 		due_txt := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
 		due, _ := time.ParseInLocation("2006-01-02", due_txt[:10], loc)
@@ -81,8 +83,9 @@ func queryNotionTaskDB() []Task {
 		class := ""
 		classColor := "blue"
 		if properties["Class"] != nil {
-			class = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["name"].(string)
-			classColor = properties["Class"].(map[string]interface{})["select"].(map[string]interface{})["color"].(string)
+			cf := properties["Class"].(map[string]interface{})["select"].(map[string]interface{})
+			class = cf["name"].(string)
+			classColor = cf["color"].(string)
 		}
 
 		tags := []string{}
@@ -94,7 +97,7 @@ func queryNotionTaskDB() []Task {
 		}
 
 		// fmt.Printf("(%s) %s [%v] due %s\n", class, name, tags, due)
-		tasks = append(tasks, Task{name, due, tags, class, classColor})
+		tasks = append(tasks, Task{name, id, due, tags, class, classColor})
 	}
 	return tasks
 }
