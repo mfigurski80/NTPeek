@@ -25,25 +25,26 @@ func main() {
 		showUsage()
 		return
 	}
-	// switch arg 1
+	// parse db id
+	if len(os.Args[1]) == 32 {
+		NotionDatabaseId = os.Args[1]
+		os.Args = os.Args[1:]
+	}
+	if len(os.Args) < 2 {
+		printTasks(queryNotionTaskDB(NotionDatabaseId))
+		return
+	}
+	// switch command
+	markDoneCommand := flag.NewFlagSet("d", flag.ExitOnError)
 	switch os.Args[1] {
 	case "h", "-h", "--help":
 		showUsage()
 		return
 	case "v", "-v", "--version":
-		fmt.Println("nt version: %s", Version)
+		fmt.Println("nt version:", Version)
 		return
-	default:
-		NotionDatabaseId = os.Args[1]
-	}
-	// switch arg 2
-	if len(os.Args) == 2 {
-		printTasks(queryNotionTaskDB(NotionDatabaseId))
-		return
-	}
-	markDoneCommand := flag.NewFlagSet("d", flag.ExitOnError)
-	switch os.Args[2] {
 	case "d":
+		requireDatabaseId()
 		markDoneCommand.Parse(os.Args[3:])
 		if markDoneCommand.NArg() < 1 {
 			fmt.Println("Please provide at least one task ID")
@@ -54,6 +55,13 @@ func main() {
 		fmt.Println("nt: unknown command", os.Args[2])
 		fmt.Println()
 		showUsage()
+	}
+}
+
+func requireDatabaseId() {
+	if NotionDatabaseId == "" {
+		fmt.Println("Please specify a Notion database ID")
+		os.Exit(1)
 	}
 }
 
