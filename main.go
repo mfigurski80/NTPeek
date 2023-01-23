@@ -17,7 +17,10 @@ var NotionAuthorizationSecret string
 //go:embed build/version.txt
 var Version string
 
+var FieldNamesConfig FieldNames
+
 func main() {
+
 	// insufficient args
 	if len(os.Args) < 2 {
 		fmt.Println("nt: insufficient arguments", os.Args)
@@ -25,17 +28,22 @@ func main() {
 		showUsage()
 		return
 	}
+
 	// parse db id
 	if len(os.Args[1]) == 32 {
 		NotionDatabaseId = os.Args[1]
 		os.Args = os.Args[1:]
 	}
+
+	// parse generic commands
+	FieldNamesConfig = parseFieldNameArguments(os.Args[1:])
+
+	// switch user action
 	if len(os.Args) < 2 {
 		printTasks(queryNotionTaskDB(NotionDatabaseId))
 		return
 	}
-	// switch command
-	markDoneCommand := flag.NewFlagSet("d", flag.ExitOnError)
+	markDoneArguments := flag.NewFlagSet("d", flag.ExitOnError)
 	switch os.Args[1] {
 	case "h", "-h", "--help":
 		showUsage()
@@ -45,16 +53,14 @@ func main() {
 		return
 	case "d":
 		requireDatabaseId()
-		markDoneCommand.Parse(os.Args[3:])
-		if markDoneCommand.NArg() < 1 {
+		markDoneArguments.Parse(os.Args[2:])
+		if markDoneArguments.NArg() < 1 {
 			fmt.Println("Please provide at least one task ID")
 			os.Exit(1)
 		}
-		markNotionTasksDone(markDoneCommand.Args())
+		markNotionTasksDone(markDoneArguments.Args())
 	default:
-		fmt.Println("nt: unknown command", os.Args[2])
-		fmt.Println()
-		showUsage()
+		printTasks(queryNotionTaskDB(NotionDatabaseId))
 	}
 }
 
@@ -71,5 +77,5 @@ func showUsage() {
 	fmt.Println("  d [task-id] ... -- mark task(s) from db as done")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
-	fmt.Println("  default -- show tasks from db")
+	fmt.Println("  [default] -- show tasks from db")
 }
