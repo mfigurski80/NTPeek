@@ -9,21 +9,14 @@ const (
 	HI
 )
 
-var importanceTags = map[string]Importance{
-	"exam":         HI,
-	"projecttask":  HI,
-	"presentation": HI,
-	"project":      HI,
-	"paper":        HI,
-	"meeting":      LO,
-	"read":         LO,
-	"utility":      LO,
-}
+type ImportanceTagsMap map[string]Importance
 
 func parseImportance(task Task) Importance {
+	// expects global variable `ImportanceTags: ImportanceTagsMap`
+	// build from command line flags (or default)
 	minImportance := LO
 	for _, tag := range task.Tags {
-		if importance, ok := importanceTags[tag]; ok {
+		if importance, ok := ImportanceTags[tag]; ok {
 			if importance > minImportance {
 				minImportance = importance
 			}

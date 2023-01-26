@@ -31,6 +31,14 @@ func requireField(entry map[string]interface{}, fieldName string, fieldVal strin
 	return entry[fieldVal]
 }
 
+type FieldNames struct {
+	TitleField    string
+	DoneField     string
+	DateField     string
+	CategoryField string
+	TagField      string
+}
+
 type Task struct {
 	Name       string
 	Id         string
@@ -43,6 +51,8 @@ type Task struct {
 var loc, _ = time.LoadLocation("Local")
 
 func queryNotionTaskDB(dbId string) []Task {
+	// expects global variable `FieldNamesConfig: FieldNames` built
+	// from command line flags (or default)
 	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
