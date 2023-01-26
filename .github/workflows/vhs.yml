@@ -7,10 +7,10 @@
 name: VHS Usage Recording 📼
 
 on:
-  workflow_dispatch:
   push:
     branches: [ "master" ]
     paths: ['*.tape', '*.go']
+  workflow_dispatch:
 
 jobs:
   record:
@@ -27,26 +27,21 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16
-        
-    - name: Setup Surge
-      run: npm install surge
 
-    - name: Generate
-      run: echo "NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" > .env && go generate
-
-    - name: Build
-      run: go build -v -o nt
+    - name: Build Binary
+      run: echo "NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" > .env && go generate && go build -v -o nt
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
 
+    - name: Setup VHS
+      run: sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
+
     - name: VHS Recordings 📼
-      uses: charmbracelet/vhs-action@v1.2.0
-      with:
-        path: 'images/*.tape'
+      run: for file in images/*.tape; do vhs "$file"; done
 
     - name: Setup Upload
-      run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
+      run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD && npm install -g surge
 
     - name: Upload
-      run: surge ./ ntpeek-usage.surge.sh --token ${{ secrets.SURGE_TOKEN }} UPLOAD
+      run: surge UPLOAD ntpeek-usage.surge.sh --token ${{ secrets.SURGE_TOKEN }}
