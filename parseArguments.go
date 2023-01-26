@@ -37,22 +37,44 @@ var ImportanceTags = ImportanceTagsMap{
 	"read":         LO,
 	"utility":      LO,
 }
+var DefaultImportance = LO
 
 func setupGlobalTagImportanceFlags(flagsets []*flag.FlagSet) func() {
 	importantTags := ""
 	unimportantTags := ""
+	dImportance := true
 
 	for _, fs := range flagsets {
-		fs.StringVar(&importantTags, "important", "exam,projecttask,presentation,project", "Comma-separated tag names to render as important")
-		fs.StringVar(&unimportantTags, "unimportant", "meeting,read,utility", "Comma-separated tag names to render as unimportant")
+		fs.StringVar(&importantTags, "important", "", "Comma-separated tags to render as important (Default \"exam,projecttask,presentation,project,paper)\"")
+		fs.StringVar(&unimportantTags, "unimportant", "", "Comma-separated tags to render as unimportant (Default \"meeting,read,utility\")")
+		fs.BoolVar(&dImportance, "default-importance", false, "Default avg importance if no tags are present")
 	}
 
 	return func() {
-		for _, tag := range strings.Split(importantTags, ",") {
-			ImportanceTags[tag] = HI
+		if importantTags != "" {
+			// remove all imporant tags
+			for k := range ImportanceTags {
+				if ImportanceTags[k] == HI {
+					delete(ImportanceTags, k)
+				}
+			}
+			for _, tag := range strings.Split(importantTags, ",") {
+				ImportanceTags[tag] = HI
+			}
 		}
-		for _, tag := range strings.Split(unimportantTags, ",") {
-			ImportanceTags[tag] = LO
+		if unimportantTags != "" {
+			// remove all unimportant tags
+			for k := range ImportanceTags {
+				if ImportanceTags[k] == LO {
+					delete(ImportanceTags, k)
+				}
+			}
+			for _, tag := range strings.Split(unimportantTags, ",") {
+				ImportanceTags[tag] = LO
+			}
+		}
+		if dImportance {
+			DefaultImportance = AVG
 		}
 	}
 }

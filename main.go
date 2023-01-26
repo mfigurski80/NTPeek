@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 //go:generate bash build/get_auth_token.sh
@@ -43,8 +44,9 @@ func main() {
 	}
 
 	// check if just peeking
-	if len(os.Args) < 2 { // default print
+	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") { // default print
 		requireDatabaseId()
+		peekArguments.Parse(os.Args[1:])
 		for _, fn := range applyFn {
 			fn()
 		}
