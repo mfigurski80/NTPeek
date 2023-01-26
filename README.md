@@ -17,7 +17,11 @@ This library is still under development. Note that it is currently somewhat 'opt
 
 Default usage requires just the database id (long string id in url):
 
-![Peeking Usage](images/usage.gif)
+![Peeking Usage](http://ntpeek-usage.surge.sh/usage.gif)
+
+However, due to the length of this, we recommend setting up a bash alias in your bashrc, which will make it easy to type commands for a specific notion database, as shown here:
+
+![Alias Peeking Usage](http://ntpeek-usage.surge.sh/alias_usage.gif)
 
 Version and Help text can be viewed by calling the tool with `v` or `h` respectively
 
