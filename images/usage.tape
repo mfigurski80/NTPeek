@@ -1,4 +1,4 @@
-Output usage.gif
+Output images/usage.gif
 Set Shell bash
 Set Width 1000
 Set Height 400

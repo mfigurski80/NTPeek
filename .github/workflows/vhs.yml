@@ -37,13 +37,16 @@ jobs:
     - name: Build
       run: go build -v -o nt
 
+    - name: Fake Time
+      run: sudo date -s "2023-01-23 12:00:00"
+
     - name: VHS Recordings 📼
       uses: charmbracelet/vhs-action@v1.2.0
       with:
-        path: 'build/*.tape'
+        path: 'images/*.tape'
 
     - name: Setup Upload
-      run: mkdir UPLOAD && mv build/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
+      run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
 
     - name: Upload
       run: surge ./ ntpeek-usage.surge.sh --token ${{ secrets.SURGE_TOKEN }} UPLOAD
