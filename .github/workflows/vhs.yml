@@ -7,6 +7,7 @@
 name: VHS Usage Recording 📼
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
     paths: ['*.tape', '*.go']
@@ -29,6 +30,9 @@ jobs:
         
     - name: Setup Surge
       run: npm install surge
+
+    - name: Generate
+      run: echo "NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" > .env && go generate
 
     - name: Build
       run: go build -v -o nt
