@@ -1,0 +1,45 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+# Also see:
+# https://github.com/yavisht/deploy-via-surge.sh-github-action-template
+# https://github.com/marketplace/actions/vhs-action
+
+name: VHS Usage Recording 📼
+
+on:
+  push:
+    branches: [ "master" ]
+    paths: ['*.tape', '*.go']
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Set up Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        
+    - name: Setup Surge
+      run: npm install surge
+
+    - name: Build
+      run: go build -v -o nt
+
+    - name: VHS Recordings 📼
+      uses: charmbracelet/vhs-action@v1.2.0
+      with:
+        path: 'build/*.tape'
+
+    - name: Setup Upload
+      run: mkdir UPLOAD && mv build/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
+
+    - name: Upload
+      run: surge ./ ntpeek-usage.surge.sh --token ${{ secrets.SURGE_TOKEN }} UPLOAD
