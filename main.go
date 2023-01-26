@@ -5,9 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
-
-var NotionDatabaseId string
 
 //go:generate bash build/get_auth_token.sh
 //go:embed build/auth_token.txt
@@ -17,7 +16,10 @@ var NotionAuthorizationSecret string
 //go:embed build/version.txt
 var Version string
 
+var NotionDatabaseId string
+
 func main() {
+
 	// insufficient args
 	if len(os.Args) < 2 {
 		fmt.Println("nt: insufficient arguments", os.Args)
@@ -25,34 +27,57 @@ func main() {
 		showUsage()
 		return
 	}
-	// parse db id
+
+	// try parse db id
 	if len(os.Args[1]) == 32 {
 		NotionDatabaseId = os.Args[1]
-		os.Args = os.Args[1:]
+		// splice out db id from args
+		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
-	if len(os.Args) < 2 {
+	// setup command flag sets
+	markDoneArguments := flag.NewFlagSet("d", flag.ExitOnError)
+	peekArguments := flag.NewFlagSet("p", flag.ExitOnError)
+	// setup global flags
+	applyFn := []func(){
+		setupGlobalFieldNameFlags([]*flag.FlagSet{markDoneArguments, peekArguments}),
+		setupGlobalTagImportanceFlags([]*flag.FlagSet{markDoneArguments, peekArguments}),
+	}
+
+	// check if just peeking
+	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") { // default print
+		requireDatabaseId()
+		peekArguments.Parse(os.Args[1:])
+		for _, fn := range applyFn {
+			fn()
+		}
 		printTasks(queryNotionTaskDB(NotionDatabaseId))
 		return
 	}
-	// switch command
-	markDoneCommand := flag.NewFlagSet("d", flag.ExitOnError)
+	// parse user command
 	switch os.Args[1] {
-	case "h", "-h", "--help":
-		showUsage()
-		return
+	// case "h", "-h", "--help":
+	// showUsage()
+	// return
 	case "v", "-v", "--version":
 		fmt.Println("nt version:", Version)
 		return
 	case "d":
 		requireDatabaseId()
-		markDoneCommand.Parse(os.Args[3:])
-		if markDoneCommand.NArg() < 1 {
+		markDoneArguments.Parse(os.Args[2:])
+		if markDoneArguments.NArg() < 1 {
 			fmt.Println("Please provide at least one task ID")
 			os.Exit(1)
 		}
-		markNotionTasksDone(markDoneCommand.Args())
+		markNotionTasksDone(markDoneArguments.Args())
+	case "p":
+		requireDatabaseId()
+		peekArguments.Parse(os.Args[2:])
+		for _, fn := range applyFn {
+			fn()
+		}
+		printTasks(queryNotionTaskDB(NotionDatabaseId))
 	default:
-		fmt.Println("nt: unknown command", os.Args[2])
+		fmt.Println("nt: unknown command", os.Args[1])
 		fmt.Println()
 		showUsage()
 	}
@@ -60,7 +85,7 @@ func main() {
 
 func requireDatabaseId() {
 	if NotionDatabaseId == "" {
-		fmt.Println("Please specify a Notion database ID")
+		fmt.Println("Please specify a valid Notion database ID as the first argument for this command")
 		os.Exit(1)
 	}
 }
@@ -71,5 +96,5 @@ func showUsage() {
 	fmt.Println("  d [task-id] ... -- mark task(s) from db as done")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
-	fmt.Println("  default -- show tasks from db")
+	fmt.Println("  p|[none] -- show tasks from db")
 }

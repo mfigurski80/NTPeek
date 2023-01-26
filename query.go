@@ -17,6 +17,28 @@ func parseNotionRichText(richText []interface{}) string {
 	return text
 }
 
+func requireField(entry map[string]interface{}, fieldName string, fieldVal string) interface{} {
+	if entry[fieldVal] == nil {
+		fields := []string{}
+		for k := range entry {
+			fields = append(fields, k)
+		}
+		panic(fmt.Errorf(
+			"%s field '%s' not found in query response. Found fields: %v",
+			fieldName, fieldVal, fields,
+		))
+	}
+	return entry[fieldVal]
+}
+
+type FieldNames struct {
+	TitleField    string
+	DoneField     string
+	DateField     string
+	CategoryField string
+	TagField      string
+}
+
 type Task struct {
 	Name       string
 	Id         string
@@ -29,25 +51,27 @@ type Task struct {
 var loc, _ = time.LoadLocation("Local")
 
 func queryNotionTaskDB(dbId string) []Task {
+	// expects global variable `FieldNamesConfig: FieldNames` built
+	// from command line flags (or default)
 	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
 	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
 	payload := strings.NewReader(`{
 		"page_size": 100,
 		"filter": {
 			"and": [{
-				"property": "Done",
+				"property": "` + FieldNamesConfig.DoneField + `",
 				"checkbox": {
 					"equals": false
 				}
 			}, {
-				"property": "Due",
+				"property": "` + FieldNamesConfig.DateField + `",
 				"date": {
 					"before": "` + getBefore + `"
 				}
 			}]
 		},
 		"sorts": [{
-			"property": "Due",
+			"property": "` + FieldNamesConfig.DateField + `",
 			"direction": "ascending"
 		}]
 	}`)
@@ -67,29 +91,31 @@ func queryNotionTaskDB(dbId string) []Task {
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 	if result["object"] == "error" {
-		fmt.Printf("Returned Error [%v]: %s\n", result["status"], result["message"])
+		panic(fmt.Errorf("Returned Error [%v]: %s\n", result["status"], result["message"]))
 	}
 
 	var tasks []Task
 	for _, entry := range result["results"].([]interface{}) {
 		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
 
-		name := parseNotionRichText(properties["Name"].(map[string]interface{})["title"].([]interface{}))
+		requireField(properties, "title", FieldNamesConfig.TitleField)
+		name := parseNotionRichText(properties[FieldNamesConfig.TitleField].(map[string]interface{})["title"].([]interface{}))
 		id := entry.(map[string]interface{})["id"].(string)
 
-		due_txt := properties["Due"].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
+		requireField(properties, "date", FieldNamesConfig.DateField)
+		due_txt := properties[FieldNamesConfig.DateField].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
 		due, _ := time.ParseInLocation("2006-01-02", due_txt[:10], loc)
 
+		requireField(properties, "category", FieldNamesConfig.CategoryField)
 		class := ""
 		classColor := "blue"
-		if properties["Class"] != nil {
-			cf := properties["Class"].(map[string]interface{})["select"].(map[string]interface{})
-			class = cf["name"].(string)
-			classColor = cf["color"].(string)
-		}
+		cf := properties[FieldNamesConfig.CategoryField].(map[string]interface{})["select"].(map[string]interface{})
+		class = cf["name"].(string)
+		classColor = cf["color"].(string)
 
+		requireField(properties, "tags", FieldNamesConfig.TagField)
 		tags := []string{}
-		if properties["Tags"] != nil {
+		if properties[FieldNamesConfig.TagField] != nil {
 			for _, tag := range properties["Tags"].(map[string]interface{})["multi_select"].([]interface{}) {
 				// append lowercase tag
 				tags = append(tags, strings.ToLower(tag.(map[string]interface{})["name"].(string)))
