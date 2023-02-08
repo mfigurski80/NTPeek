@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/mfigurski80/NTPeek/priority"
+	"github.com/mfigurski80/NTPeek/render"
 )
 
 //go:generate bash build/get_auth_token.sh
@@ -34,30 +37,26 @@ func main() {
 		// splice out db id from args
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
+
 	// setup command flag sets
 	markDoneArguments := flag.NewFlagSet("d", flag.ExitOnError)
 	peekArguments := flag.NewFlagSet("p", flag.ExitOnError)
+	allFlagSets := []*flag.FlagSet{markDoneArguments, peekArguments}
+
 	// setup global flags
 	applyFn := []func(){
-		setupGlobalFieldNameFlags([]*flag.FlagSet{markDoneArguments, peekArguments}),
-		setupGlobalTagImportanceFlags([]*flag.FlagSet{markDoneArguments, peekArguments}),
+		setupGlobalFieldNameFlags(allFlagSets),
+		priority.SetupGlobalTagPriorityFlags(allFlagSets),
 	}
+	selectRenderString := render.SetupSelectFlag(allFlagSets)
 
 	// check if just peeking
-	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") { // default print
-		requireDatabaseId()
-		peekArguments.Parse(os.Args[1:])
-		for _, fn := range applyFn {
-			fn()
-		}
-		printTasks(queryNotionTaskDB(NotionDatabaseId))
-		return
+	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
+		os.Args = append([]string{os.Args[0], "p"}, os.Args...)
 	}
+
 	// parse user command
 	switch os.Args[1] {
-	// case "h", "-h", "--help":
-	// showUsage()
-	// return
 	case "v", "-v", "--version":
 		fmt.Println("nt version:", Version)
 		return
@@ -75,9 +74,9 @@ func main() {
 		for _, fn := range applyFn {
 			fn()
 		}
-		printTasks(queryNotionTaskDB(NotionDatabaseId))
+		render.RenderTasks(queryNotionEntryDB(NotionDatabaseId), selectRenderString)
 	default:
-		fmt.Println("nt: unknown command", os.Args[1])
+		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()
 		showUsage()
 	}

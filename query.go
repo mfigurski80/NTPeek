@@ -7,7 +7,64 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/mfigurski80/NTPeek/types"
 )
+
+type NotionEntry = types.NotionEntry
+
+func queryNotionEntryDB(dbId string) []NotionEntry {
+	// expects global variable `FieldNamesConfig: FieldNames`
+	// built from command line flags (or default) for filter/sorting
+	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
+	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
+	payload := strings.NewReader(`{
+		"page_size": 100,
+		"filter": {
+			"and": [{
+				"property": "` + FieldNamesConfig.DoneField + `",
+				"checkbox": {
+					"equals": false
+				}
+			}, {
+				"property": "` + FieldNamesConfig.DateField + `",
+				"date": {
+					"before": "` + getBefore + `"
+				}
+			}]
+		},
+		"sorts": [{
+			"property": "` + FieldNamesConfig.DateField + `",
+			"direction": "ascending"
+		}]
+	}`)
+
+	req, _ := http.NewRequest("POST", url, payload)
+	req.Header.Add("accept", "application/json")
+	req.Header.Add("Notion-Version", "2022-06-28")
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", NotionAuthorizationSecret))
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	var result map[string]interface{}
+	json.Unmarshal(body, &result)
+	if result["object"] == "error" {
+		panic(fmt.Errorf("Returned Error [%v]: %s\n", result["status"], result["message"]))
+	}
+
+	var entries []NotionEntry = make([]NotionEntry, len(result["results"].([]interface{})))
+	for i, entry := range result["results"].([]interface{}) {
+		entries[i] = entry.(map[string]interface{})["properties"].(map[string]interface{})
+		entries[i]["_id"] = entry.(map[string]interface{})["id"].(string)
+	}
+
+	return entries
+}
 
 func parseNotionRichText(richText []interface{}) string {
 	var text string
@@ -51,56 +108,14 @@ type Task struct {
 var loc, _ = time.LoadLocation("Local")
 
 func queryNotionTaskDB(dbId string) []Task {
-	// expects global variable `FieldNamesConfig: FieldNames` built
-	// from command line flags (or default)
-	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", dbId)
-	getBefore := time.Now().AddDate(0, 0, 9).Format("2006-01-02")
-	payload := strings.NewReader(`{
-		"page_size": 100,
-		"filter": {
-			"and": [{
-				"property": "` + FieldNamesConfig.DoneField + `",
-				"checkbox": {
-					"equals": false
-				}
-			}, {
-				"property": "` + FieldNamesConfig.DateField + `",
-				"date": {
-					"before": "` + getBefore + `"
-				}
-			}]
-		},
-		"sorts": [{
-			"property": "` + FieldNamesConfig.DateField + `",
-			"direction": "ascending"
-		}]
-	}`)
-
-	req, _ := http.NewRequest("POST", url, payload)
-	req.Header.Add("accept", "application/json")
-	req.Header.Add("Notion-Version", "2022-06-28")
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", NotionAuthorizationSecret))
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-	var result map[string]interface{}
-	json.Unmarshal(body, &result)
-	if result["object"] == "error" {
-		panic(fmt.Errorf("Returned Error [%v]: %s\n", result["status"], result["message"]))
-	}
+	entries := queryNotionEntryDB(dbId)
 
 	var tasks []Task
-	for _, entry := range result["results"].([]interface{}) {
-		properties := entry.(map[string]interface{})["properties"].(map[string]interface{})
+	for _, properties := range entries {
+		id := properties["_id"].(string)
 
 		requireField(properties, "title", FieldNamesConfig.TitleField)
 		name := parseNotionRichText(properties[FieldNamesConfig.TitleField].(map[string]interface{})["title"].([]interface{}))
-		id := entry.(map[string]interface{})["id"].(string)
 
 		requireField(properties, "date", FieldNamesConfig.DateField)
 		due_txt := properties[FieldNamesConfig.DateField].(map[string]interface{})["date"].(map[string]interface{})["start"].(string)

@@ -1,8 +1,8 @@
-package main
+package render
 
 type TextHighlight struct {
-	Bg   string
-	Fore string
+	Bg string
+	Fg string
 }
 
 var colorMap = map[string]TextHighlight{

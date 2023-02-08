@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"strings"
 )
 
 /// Field Names Configuration: sets up how to parse task fields
@@ -22,59 +21,5 @@ func setupGlobalFieldNameFlags(flagsets []*flag.FlagSet) func() {
 
 	return func() {
 		FieldNamesConfig = names
-	}
-}
-
-/// Tag Importance Configuration: sets up how to parse task tags
-
-var ImportanceTags = ImportanceTagsMap{
-	"exam":         HI,
-	"projecttask":  HI,
-	"presentation": HI,
-	"project":      HI,
-	"paper":        HI,
-	"meeting":      LO,
-	"read":         LO,
-	"utility":      LO,
-}
-var DefaultImportance = LO
-
-func setupGlobalTagImportanceFlags(flagsets []*flag.FlagSet) func() {
-	importantTags := ""
-	unimportantTags := ""
-	dImportance := true
-
-	for _, fs := range flagsets {
-		fs.StringVar(&importantTags, "important", "", "Comma-separated tags to render as important (Default \"exam,projecttask,presentation,project,paper)\"")
-		fs.StringVar(&unimportantTags, "unimportant", "", "Comma-separated tags to render as unimportant (Default \"meeting,read,utility\")")
-		fs.BoolVar(&dImportance, "default-importance", false, "Default avg importance if no tags are present")
-	}
-
-	return func() {
-		if importantTags != "" {
-			// remove all imporant tags
-			for k := range ImportanceTags {
-				if ImportanceTags[k] == HI {
-					delete(ImportanceTags, k)
-				}
-			}
-			for _, tag := range strings.Split(importantTags, ",") {
-				ImportanceTags[tag] = HI
-			}
-		}
-		if unimportantTags != "" {
-			// remove all unimportant tags
-			for k := range ImportanceTags {
-				if ImportanceTags[k] == LO {
-					delete(ImportanceTags, k)
-				}
-			}
-			for _, tag := range strings.Split(unimportantTags, ",") {
-				ImportanceTags[tag] = LO
-			}
-		}
-		if dImportance {
-			DefaultImportance = AVG
-		}
 	}
 }
