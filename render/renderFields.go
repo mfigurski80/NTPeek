@@ -62,9 +62,14 @@ func getFieldRenderFunc(field []interface{}) (RenderRowFunction, bool) {
 		return renderTitle, true
 	case "select":
 		return renderSelect, true
+	case "multi_select":
+		return renderMultiSelect, true
 	case "date":
 		return renderDate, true
+	case "checkbox":
+		return renderCheckbox, true
 	default:
+		fmt.Printf("ERROR: unsupported field type '%s'\n", fVals["type"].(string))
 		return func(d []interface{}, m []string) []string {
 			return make([]string, len(d))
 		}, false
