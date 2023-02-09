@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/mfigurski80/NTPeek/types"
+	"golang.org/x/exp/maps"
 )
 
 func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
@@ -18,6 +19,10 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 	fieldVals := make([][]interface{}, len(fields))
 	for i, name := range fieldNames {
 		fieldVals[i] = make([]interface{}, len(tasks))
+		if tasks[0][name] == nil {
+			fmt.Printf("ERROR: field '%s' not found. Instead found: %v\n", name, maps.Keys(tasks[0]))
+			continue
+		}
 		for j, task := range tasks {
 			fieldVals[i][j] = task[name]
 		}
@@ -27,7 +32,7 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 	for i, name := range fieldNames {
 		renderFunc, ok := getFieldRenderFunc(fieldVals[i])
 		if !ok {
-			fmt.Println("ERROR formatting field", name)
+			fmt.Printf("ERROR: formatting field '%s'\n", name)
 			rendered[i] = make([]string, len(fieldVals[i]))
 			continue
 		}

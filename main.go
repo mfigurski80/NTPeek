@@ -52,15 +52,15 @@ func main() {
 
 	// check if just peeking
 	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
-		os.Args = append([]string{os.Args[0], "p"}, os.Args...)
+		os.Args = append([]string{os.Args[0], "p"}, os.Args[1:]...)
 	}
 
 	// parse user command
 	switch os.Args[1] {
-	case "v", "-v", "--version":
+	case "v", "version":
 		fmt.Println("nt version:", Version)
 		return
-	case "d":
+	case "d", "do", "delete", "done":
 		requireDatabaseId()
 		markDoneArguments.Parse(os.Args[2:])
 		if markDoneArguments.NArg() < 1 {
@@ -68,13 +68,13 @@ func main() {
 			os.Exit(1)
 		}
 		markNotionTasksDone(markDoneArguments.Args())
-	case "p":
+	case "p", "peek":
 		requireDatabaseId()
 		peekArguments.Parse(os.Args[2:])
 		for _, fn := range applyFn {
 			fn()
 		}
-		render.RenderTasks(queryNotionEntryDB(NotionDatabaseId), selectRenderString)
+		render.RenderTasks(queryNotionEntryDB(NotionDatabaseId), *selectRenderString)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()

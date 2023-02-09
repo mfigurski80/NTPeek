@@ -41,37 +41,7 @@ func sprintfList(format string, list [][]string) string {
 	return result
 }
 
-func zip(a ...[]string) [][]string {
-	var zipped [][]string
-	for i := 0; i < len(a[0]); i++ {
-		var row []string
-		for _, v := range a {
-			row = append(row, v[i])
-		}
-		zipped = append(zipped, row)
-	}
-	return zipped
-}
-
 /// Replaces every match with a field-specific render of its value
-
-// var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9.]+)%`)
-//
-// func (s SelectRenderString) renderTask(t *NotionEntry, importance priority.Priority) string {
-// for k := range *t {
-// fmt.Print(k)
-// }
-// fmt.Println()
-// m := selectRenderRegex.FindAllString(string(s), -1)
-// for _, v := range m {
-// // split on . to get class and method
-// split := strings.Split(v[1:len(v)-1], ".")
-// fmt.Printf("%s :: %v\n", split[0], (*t)[split[0]])
-//
-// // fmt.Println((*t)[split[0]])
-// }
-// return ""
-// }
 
 // func printTasks(tasks []NotionEntry, selectRender SelectRenderString) {
 //
