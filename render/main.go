@@ -2,74 +2,55 @@ package render
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mfigurski80/NTPeek/types"
 	"github.com/muesli/termenv"
 )
 
-type NotionEntry = types.NotionEntry
-
 /// RenderTasks renders a list of tasks
+
+var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9.]+)%`)
 
 func RenderTasks(tasks []types.NotionEntry, selectRender SelectRenderString) {
 	lipgloss.SetColorProfile(termenv.TrueColor)
-	// build map of names for each field
-	fieldNames := make([]string, len(tasks[0]))
-	fieldVals := make([][]interface{}, len(tasks[0]))
-	i := 0
-	for k, _ := range tasks[0] {
-		fieldNames[i] = k
-		fieldVals[i] = make([]interface{}, len(tasks))
-		for j, task := range tasks {
-			fieldVals[i][j] = task[k]
-		}
-		i++
+	// find fields needed for render
+	m := selectRenderRegex.FindAllString(string(selectRender), -1)
+	fields := make([]string, len(m))
+	for i, v := range m {
+		fields[i] = v[1 : len(v)-1]
 	}
-	// TODO: filter out fields we need to render
-	// render each column into strings
-	vals := make([][]string, len(fieldNames))
-	for i, name := range fieldNames {
-		if name == "_id" {
-			continue
-		}
-		vals[i] = make([]string, len(tasks))
-		rawVals := fieldVals[i].([]map[string]interface{})
-		fmt.Printf("%s - %s\n", name, rawVals["type"])
-		fmt.Println(fieldVals[i][0])
-		renderFunc := getFieldRenderFunc(rawVals)
-	}
-	return
-	//
-	// for _, task := range tasks {
-	// selectRender.renderTask(&task, priority.LO)
-	// return
-	// }
+	// render field data
+	renderedFields := getRenderedFields(tasks, fields)
+	// place field data into render string
+	formatString := selectRenderRegex.ReplaceAllString(string(selectRender), "%s")
+	ret := sprintfList(formatString+"\n", renderedFields)
+	fmt.Printf(ret)
 }
 
-type RenderRowFunction func([]interface{}, []string) []string
-
-func getFieldRenderFunc(field []map[string]interface{}) RenderRowFunction {
-	switch field[0]["type"].(string) {
-	case "title":
-		fmt.Println("title")
-		return renderTitle
-	case "rich_text":
-		fmt.Println("rich_text")
-		return renderTitle
-	case "select":
-		fmt.Println("select")
-		return renderSelect
-	// case "multi_select":
-	// fmt.Println("multi_select")
-	// return []string{}
-	case "date":
-		fmt.Println("date")
-		return renderDate
-	default:
-		fmt.Println("unknown")
-		return func([]interface{}, []string) []string { return []string{} }
+func sprintfList(format string, list [][]string) string {
+	result := ""
+	for i := range list[0] {
+		row := make([]interface{}, len(list))
+		for j, column := range list {
+			row[j] = column[i]
+		}
+		result += fmt.Sprintf(format, row...)
 	}
+	return result
+}
+
+func zip(a ...[]string) [][]string {
+	var zipped [][]string
+	for i := 0; i < len(a[0]); i++ {
+		var row []string
+		for _, v := range a {
+			row = append(row, v[i])
+		}
+		zipped = append(zipped, row)
+	}
+	return zipped
 }
 
 /// Replaces every match with a field-specific render of its value
