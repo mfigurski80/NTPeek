@@ -3,7 +3,12 @@ Set Shell bash
 Set Width 1000
 Set Height 500
 
-Type@50ms 'alias nta="./nt 979bf78281914ca5895555168b2f7396"'
+# Note: This token is already burned
+Hide
+Type "export NT_TOKEN=secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+Show
+
+Type@50ms 'alias nta="./nt \"$NT_TOKEN\" 979bf78281914ca5895555168b2f7396"'
 Sleep 800ms
 Enter
 Type "nta"

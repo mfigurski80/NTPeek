@@ -28,12 +28,16 @@ func main() {
 		return
 	}
 
-	// try parse db id
-	if len(os.Args[1]) == 32 {
-		NotionDatabaseId = os.Args[1]
-		// splice out db id from args
+	// try parse auth secret, db id
+	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
+		NotionAuthorizationSecret = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
+	if len(os.Args) > 1 && len(os.Args[1]) == 32 {
+		NotionDatabaseId = os.Args[1]
+		os.Args = append(os.Args[:1], os.Args[2:]...)
+	}
+
 	// setup command flag sets
 	markDoneArguments := flag.NewFlagSet("d", flag.ExitOnError)
 	peekArguments := flag.NewFlagSet("p", flag.ExitOnError)
