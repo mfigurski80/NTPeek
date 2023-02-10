@@ -1,6 +1,6 @@
 Output images/alias_usage.gif
 Set Shell bash
-Set Width 1000
+Set Width 1200
 Set Height 500
 
 # Note: This token is already burned

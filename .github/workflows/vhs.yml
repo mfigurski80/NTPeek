@@ -9,7 +9,7 @@ name: VHS Usage Recording 📼
 on:
   push:
     branches: [ "master" ]
-    paths: ['*.tape', '*.go']
+    paths: ['**/*.tape', '**/*.go']
   workflow_dispatch:
 
 jobs:
