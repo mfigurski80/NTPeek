@@ -9,7 +9,7 @@ name: VHS Usage Recording 📼
 on:
   push:
     branches: [ "master" ]
-    paths: ['*.tape', '*.go']
+    paths: ['**/*.tape', '**/*.go']
   workflow_dispatch:
 
 jobs:
@@ -31,11 +31,11 @@ jobs:
     - name: Build Binary
       run: echo "NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" > .env && go generate && go build -v -o nt
 
-    - name: Fake Time
-      run: sudo date -s "2023-01-23 12:00:00"
-
     - name: Setup VHS
       run: sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
+
+    - name: Fake Time
+      run: sudo date -s "2023-01-23 12:00:00"
 
     - name: VHS Recordings 📼
       run: for file in images/*.tape; do vhs "$file"; done
