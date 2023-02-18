@@ -8,6 +8,8 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+type renderRowFunction func([]interface{}, []string) []string
+
 func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 	// parse each field: NAME[.MODIFIER]*
 	fieldNames := make([]string, len(fields))
@@ -48,26 +50,26 @@ func getFieldRenderDirective(s string) (string, []string) {
 	return parts[0], parts[1:]
 }
 
-type RenderRowFunction func([]interface{}, []string) []string
-
-func getFieldRenderFunc(field []interface{}) (RenderRowFunction, bool) {
+// Figure out field type and return single common RenderRowFunction
+func getFieldRenderFunc(field []interface{}) (renderRowFunction, bool) {
 	fVals, ok := field[0].(map[string]interface{})
 	if !ok {
 		return nil, false
 	}
+	gMod := withGlobalModifiers
 	switch fVals["type"].(string) {
 	case "title":
-		return renderTitle, true
+		return gMod(renderTitle), true
 	case "rich_text":
-		return renderTitle, true
+		return gMod(renderTitle), true
 	case "select":
-		return renderSelect, true
+		return gMod(renderSelect), true
 	case "multi_select":
-		return renderMultiSelect, true
+		return gMod(renderMultiSelect), true
 	case "date":
-		return renderDate, true
+		return gMod(renderDate), true
 	case "checkbox":
-		return renderCheckbox, true
+		return gMod(renderCheckbox), true
 	default:
 		fmt.Printf("ERROR: unsupported field type '%s'\n", fVals["type"].(string))
 		return func(d []interface{}, m []string) []string {
