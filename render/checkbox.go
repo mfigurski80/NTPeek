@@ -1,6 +1,8 @@
 package render
 
-func renderCheckbox(fields []interface{}, modifiers []string) []string {
+import "github.com/mfigurski80/NTPeek/priority"
+
+func renderCheckbox(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		value := field.(map[string]interface{})["checkbox"].(bool)

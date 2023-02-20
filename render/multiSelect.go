@@ -2,9 +2,10 @@ package render
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mfigurski80/NTPeek/priority"
 )
 
-func renderMultiSelect(fields []interface{}, modifiers []string) []string {
+func renderMultiSelect(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		res[i] = ""

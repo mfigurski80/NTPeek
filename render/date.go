@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mfigurski80/NTPeek/priority"
 )
 
 var loc, _ = time.LoadLocation("Local")
 
 /// Render date field relative to local time
 
-func renderDate(fields []interface{}, modifiers []string) []string {
+func renderDate(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		date := field.(map[string]interface{})["date"].(map[string]interface{})["start"].(string)

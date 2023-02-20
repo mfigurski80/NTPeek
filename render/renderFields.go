@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mfigurski80/NTPeek/priority"
 	"github.com/mfigurski80/NTPeek/types"
 	"golang.org/x/exp/maps"
 )
 
-type renderRowFunction func([]interface{}, []string) []string
+type renderRowFunction func([]interface{}, []string, []priority.Priority) []string
 
 func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
+	// get priorities
+	priorities := priority.Assign(tasks)
 	// parse each field: NAME[.MODIFIER]*
 	fieldNames := make([]string, len(fields))
 	fieldModifiers := make([][]string, len(fields))
@@ -38,7 +41,7 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 			rendered[i] = make([]string, len(fieldVals[i]))
 			continue
 		}
-		rendered[i] = renderFunc(fieldVals[i], fieldModifiers[i])
+		rendered[i] = renderFunc(fieldVals[i], fieldModifiers[i], priorities)
 	}
 	// return rendered fields
 	return rendered
@@ -72,7 +75,7 @@ func getFieldRenderFunc(field []interface{}) (renderRowFunction, bool) {
 		return gMod(renderCheckbox), true
 	default:
 		fmt.Printf("ERROR: unsupported field type '%s'\n", fVals["type"].(string))
-		return func(d []interface{}, m []string) []string {
+		return func(d []interface{}, _ []string, _ []priority.Priority) []string {
 			return make([]string, len(d))
 		}, false
 	}

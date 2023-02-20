@@ -1,12 +1,29 @@
 package render
 
-func renderTitle(fields []interface{}, modifiers []string) []string {
+import (
+	"github.com/charmbracelet/lipgloss"
+	"github.com/mfigurski80/NTPeek/priority"
+)
+
+var titleStyle = map[priority.Priority]lipgloss.Style{
+	priority.HI: lipgloss.NewStyle().Bold(true),
+	priority.LO: lipgloss.NewStyle().Faint(true),
+}
+
+func renderTitle(fields []interface{}, modifiers []string, p []priority.Priority) []string {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		res[i] = parseNotionRichText(field.(map[string]interface{})["title"].([]interface{}))
+		switch p[i] {
+		case priority.HI:
+			res[i] = titleStyle[priority.HI].Render("!" + res[i])
+		case priority.MED:
+			res[i] = " " + res[i]
+		case priority.LO:
+			res[i] = titleStyle[priority.LO].Render(" " + res[i])
+		}
 	}
 	// TODO: support modifiers?
-	// TODO: support priority?
 	return res
 }
 

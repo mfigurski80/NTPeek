@@ -18,7 +18,7 @@ var TagsPriority = TagsPriorityMap{
 	"utility":      LO,
 }
 
-var DefaultPriority = LO
+var DefaultPriority = MED
 
 func SetupGlobalTagPriorityFlags(flagsets []*flag.FlagSet) func() {
 	priorityTags := ""
