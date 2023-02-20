@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/mfigurski80/NTPeek/priority"
+	"github.com/mfigurski80/NTPeek/query"
 	"github.com/mfigurski80/NTPeek/render"
 )
 
@@ -42,13 +43,12 @@ func main() {
 	}
 
 	// setup command flag sets
-	markDoneArguments := flag.NewFlagSet("d", flag.ExitOnError)
 	peekArguments := flag.NewFlagSet("p", flag.ExitOnError)
-	allFlagSets := []*flag.FlagSet{markDoneArguments, peekArguments}
+	allFlagSets := []*flag.FlagSet{peekArguments}
 
 	// setup global flags
 	applyFn := []func(){
-		setupGlobalFieldNameFlags(allFlagSets),
+		query.SetupFieldNameFlags(allFlagSets),
 		priority.SetupGlobalTagPriorityFlags(allFlagSets),
 	}
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
@@ -63,21 +63,14 @@ func main() {
 	case "v", "version":
 		fmt.Println("nt version:", Version)
 		return
-	case "d", "do", "delete", "done":
-		requireDatabaseId()
-		markDoneArguments.Parse(os.Args[2:])
-		if markDoneArguments.NArg() < 1 {
-			fmt.Println("Please provide at least one task ID")
-			os.Exit(1)
-		}
-		markNotionTasksDone(markDoneArguments.Args())
 	case "p", "peek":
 		requireDatabaseId()
 		peekArguments.Parse(os.Args[2:])
 		for _, fn := range applyFn {
 			fn()
 		}
-		render.RenderTasks(queryNotionEntryDB(NotionDatabaseId), *selectRenderString)
+		res := query.QueryNotionEntryDB(NotionAuthorizationSecret, NotionDatabaseId)
+		render.RenderTasks(res, *selectRenderString)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()
@@ -93,9 +86,8 @@ func requireDatabaseId() {
 }
 
 func showUsage() {
-	fmt.Println("Usage: nt [database-id?] <command? [args]>\n")
+	fmt.Println("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n")
 	fmt.Println("Commands:")
-	fmt.Println("  d [task-id] ... -- mark task(s) from db as done")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
 	fmt.Println("  p|[none] -- show tasks from db")
