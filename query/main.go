@@ -8,11 +8,19 @@ import (
 	"github.com/mfigurski80/NTPeek/types"
 )
 
-func QueryNotionEntryDB(secret string, dbId string) []types.NotionEntry {
-	res, err := doNotionDBRequest(secret, dbId)
+type QueryAccessArgument struct {
+	Secret string
+	DBId   string
+}
+
+func QueryNotionEntryDB(access QueryAccessArgument, sort SortString) []types.NotionEntry {
+	// do request
+	sortDirective := formatSortDirective(sort)
+	res, err := doNotionDBRequest(access, sortDirective)
 	if err != nil {
 		panic(err)
 	}
+	// parse into entries
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	var result map[string]interface{}
@@ -21,7 +29,7 @@ func QueryNotionEntryDB(secret string, dbId string) []types.NotionEntry {
 		panic(fmt.Errorf("Returned Error [%v]: %s\n", result["status"], result["message"]))
 	}
 
-	var entries []NotionEntry = make([]NotionEntry, len(result["results"].([]interface{})))
+	var entries []types.NotionEntry = make([]types.NotionEntry, len(result["results"].([]interface{})))
 	for i, entry := range result["results"].([]interface{}) {
 		entries[i] = entry.(map[string]interface{})["properties"].(map[string]interface{})
 		entries[i]["_id"] = entry.(map[string]interface{})["id"].(string)

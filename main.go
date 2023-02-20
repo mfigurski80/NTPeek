@@ -14,13 +14,15 @@ import (
 
 //go:generate bash build/get_auth_token.sh
 //go:embed build/auth_token.txt
-var NotionAuthorizationSecret string
+var notionAuthorizationSecret string
+var AccessArgument = query.QueryAccessArgument{
+	notionAuthorizationSecret,
+	"",
+}
 
 //go:generate bash build/get_version.sh
 //go:embed build/version.txt
 var Version string
-
-var NotionDatabaseId string
 
 func main() {
 
@@ -34,11 +36,11 @@ func main() {
 
 	// try parse auth secret, db id
 	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
-		NotionAuthorizationSecret = os.Args[1]
+		AccessArgument.Secret = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
 	if len(os.Args) > 1 && len(os.Args[1]) == 32 {
-		NotionDatabaseId = os.Args[1]
+		AccessArgument.DBId = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
 
@@ -52,6 +54,7 @@ func main() {
 		priority.SetupGlobalTagPriorityFlags(allFlagSets),
 	}
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
+	sortString := query.SetupSortFlag(allFlagSets)
 
 	// check if just peeking
 	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
@@ -64,12 +67,12 @@ func main() {
 		fmt.Println("nt version:", Version)
 		return
 	case "p", "peek":
-		requireDatabaseId()
+		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 		for _, fn := range applyFn {
 			fn()
 		}
-		res := query.QueryNotionEntryDB(NotionAuthorizationSecret, NotionDatabaseId)
+		res := query.QueryNotionEntryDB(AccessArgument, *sortString)
 		render.RenderTasks(res, *selectRenderString)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
@@ -78,9 +81,9 @@ func main() {
 	}
 }
 
-func requireDatabaseId() {
-	if NotionDatabaseId == "" {
-		fmt.Println("Please specify a valid Notion database ID as the first argument for this command")
+func requireAccess(a query.QueryAccessArgument) {
+	if a.Secret == "" || a.DBId == "" {
+		fmt.Println("Please specify a valid Notion Secret Token and Database ID as the first and second positional arguments for this command")
 		os.Exit(1)
 	}
 }

@@ -11,7 +11,7 @@ import (
 
 /// RenderTasks renders a list of tasks
 
-var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9.]+)%`)
+var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9:]+)%`)
 
 func RenderTasks(tasks []types.NotionEntry, selectRender SelectRenderString) {
 	lipgloss.SetColorProfile(termenv.TrueColor)

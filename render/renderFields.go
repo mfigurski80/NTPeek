@@ -17,7 +17,7 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 	}
 	// get priorities
 	priorities := priority.Assign(tasks)
-	// parse each field: NAME[.MODIFIER]*
+	// parse each field: NAME[:MODIFIER]*
 	fieldNames := make([]string, len(fields))
 	fieldModifiers := make([][]string, len(fields))
 	for i, field := range fields {
@@ -50,9 +50,9 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
 	return rendered
 }
 
-// Parse individual `"Class.R"` string into name and modifiers
+// Parse individual `"Class:R"` string into name and modifiers
 func getFieldRenderDirective(s string) (string, []string) {
-	parts := strings.Split(s, ".")
+	parts := strings.Split(s, ":")
 	return parts[0], parts[1:]
 }
 
