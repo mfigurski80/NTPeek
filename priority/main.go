@@ -18,7 +18,7 @@ func Assign(rows []types.NotionEntry) []Priority {
 	tags := make([][]string, len(rows))
 	for i, row := range rows {
 		tags[i] = make([]string, 0)
-		// TODO: assumes 'Tags' is a multi-select
+		// TODO: assumes 'Tags' is a multi-select field in db
 		for _, t := range row["Tags"].(map[string]interface{})["multi_select"].([]interface{}) {
 			tags[i] = append(tags[i], t.(map[string]interface{})["name"].(string))
 		}

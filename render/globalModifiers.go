@@ -13,7 +13,7 @@ import (
 // Existing global style + info on what we're styling => new global style
 type modifierFunc func(lipgloss.Style, []string) lipgloss.Style
 
-var GLOBAL_RENDER_MODIFIERS map[string]modifierFunc = map[string]modifierFunc{
+var _GLOBAL_RENDER_MODIFIERS map[string]modifierFunc = map[string]modifierFunc{
 	"bold": func(s lipgloss.Style, _ []string) lipgloss.Style {
 		return s.Bold(true)
 	},
@@ -36,7 +36,7 @@ func withGlobalModifiers(renderFn renderRowFunction) renderRowFunction {
 		// build global style modifier
 		style := lipgloss.NewStyle()
 		for _, mod := range global {
-			style = GLOBAL_RENDER_MODIFIERS[mod](style, rendered)
+			style = _GLOBAL_RENDER_MODIFIERS[mod](style, rendered)
 		}
 		// apply global modifier
 		styled := make([]string, len(rendered))
@@ -54,7 +54,7 @@ func findRecognizedModifiers(
 	var found []string
 	var missing []string
 	for _, mod := range modifiers {
-		if _, ok := GLOBAL_RENDER_MODIFIERS[mod]; ok {
+		if _, ok := _GLOBAL_RENDER_MODIFIERS[mod]; ok {
 			found = append(found, mod)
 		} else {
 			missing = append(missing, mod)
