@@ -13,10 +13,16 @@ type QueryAccessArgument struct {
 	DBId   string
 }
 
-func QueryNotionEntryDB(access QueryAccessArgument, sort SortString) []types.NotionEntry {
+type QueryParamArgument struct {
+	Sort   SortString
+	Filter FilterString
+}
+
+func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) []types.NotionEntry {
 	// do request
-	sortDirective := formatSortDirective(sort)
-	res, err := doNotionDBRequest(access, sortDirective)
+	sortDirective := formatSortDirective(param.Sort)
+	filterDirective := formatFilterDirective(param.Filter)
+	res, err := doNotionDBRequest(access, sortDirective, filterDirective)
 	if err != nil {
 		panic(err)
 	}

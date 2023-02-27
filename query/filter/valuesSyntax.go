@@ -1,23 +1,32 @@
 package filter
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+
+	"github.com/alecthomas/participle/v2"
+)
 
 /// Generic Value union type
-/// MAKE SURE TO ACTUALLY DO UNION
+/// MAKE SURE TO ACTUALLY DO UNION IN PARSER
 
 type value interface {
-	value()
+	Render() string
 	String() string
 }
+
+var valueUnion = participle.Union[value](stringValue{}, numberValue{}, booleanValue{}, dateValue{}, relativeDateValue{}, emptyValue{})
 
 // String
 type stringValue struct {
 	Value string `@String`
 }
 
-func (v stringValue) value() {}
 func (v stringValue) String() string {
 	return v.Value
+}
+func (v stringValue) Render() string {
+	return fmt.Sprintf(`"%s"`, v.Value)
 }
 
 // Number
@@ -25,8 +34,10 @@ type numberValue struct {
 	Value float64 `@(Float|Int) (?!"/")`
 }
 
-func (v numberValue) value() {}
 func (v numberValue) String() string {
+	return fmt.Sprintf("%f", v.Value)
+}
+func (v numberValue) Render() string {
 	return fmt.Sprintf("%f", v.Value)
 }
 
@@ -39,15 +50,20 @@ func (b *capturedBoolean) Capture(values []string) error {
 }
 
 type booleanValue struct {
-	Value capturedBoolean `@(TRUE|FALSE)`
+	Value capturedBoolean `@("TRUE"|"FALSE")`
 }
 
-func (v booleanValue) value() {}
 func (v booleanValue) String() string {
 	if v.Value {
 		return "TRUE"
 	}
 	return "FALSE"
+}
+func (v booleanValue) Render() string {
+	if v.Value {
+		return "true"
+	}
+	return "false"
 }
 
 // Date
@@ -57,9 +73,11 @@ type dateValue struct {
 	Day   int `@Int`
 }
 
-func (v dateValue) value() {}
 func (v dateValue) String() string {
-	return fmt.Sprintf("%d/%d/%d", v.Year, v.Month, v.Day)
+	return fmt.Sprintf("%04d/%02d/%02d", v.Year, v.Month, v.Day)
+}
+func (v dateValue) Render() string {
+	return fmt.Sprintf("%04d-%02d-%02d", v.Year, v.Month, v.Day)
 }
 
 // RelativeDate
@@ -69,9 +87,26 @@ type relativeDateValue struct {
 	Unit      string `@("DAY"|"WEEK"|"MONTH"|"YEAR")`
 }
 
-func (r relativeDateValue) value() {}
 func (r relativeDateValue) String() string {
 	return fmt.Sprintf("%s %d %s", r.Direction, r.Amount, r.Unit)
+}
+func (r relativeDateValue) Render() string {
+	dir := -1
+	if r.Direction == "NEXT" {
+		dir = 1
+	}
+	t := time.Now()
+	switch r.Unit {
+	case "DAY":
+		t = t.AddDate(0, 0, dir*r.Amount)
+	case "WEEK":
+		t = t.AddDate(0, 0, dir*7*r.Amount)
+	case "MONTH":
+		t = t.AddDate(0, dir*r.Amount, 0)
+	case "YEAR":
+		t = t.AddDate(dir*r.Amount, 0, 0)
+	}
+	return t.Format(`"2006-01-02"`)
 }
 
 // Empty/Null
@@ -79,7 +114,9 @@ type emptyValue struct {
 	Value bool `@("EMPTY"|"NONE")`
 }
 
-func (v emptyValue) value() {}
 func (v emptyValue) String() string {
 	return "EMPTY"
+}
+func (v emptyValue) Render() string {
+	return "EMPTY_VALUE_RENDER_NOT_USED" // wont be used
 }

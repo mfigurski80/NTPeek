@@ -55,6 +55,7 @@ func main() {
 	}
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
 	sortString := query.SetupSortFlag(allFlagSets)
+	filterString := query.SetupFilterFlag(allFlagSets)
 
 	// check if just peeking
 	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
@@ -72,7 +73,8 @@ func main() {
 		for _, fn := range applyFn {
 			fn()
 		}
-		res := query.QueryNotionEntryDB(AccessArgument, *sortString)
+		params := query.QueryParamArgument{*sortString, *filterString}
+		res := query.QueryNotionEntryDB(AccessArgument, params)
 		render.RenderTasks(res, *selectRenderString)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
