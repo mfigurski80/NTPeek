@@ -11,12 +11,12 @@ import (
 
 type renderRowFunction func([]interface{}, []string, []priority.Priority) []string
 
-func getRenderedFields(tasks []types.NotionEntry, fields []string) [][]string {
+func getRenderedFields(tasks []types.NotionEntry, fields []string, priorityConfig priority.PriorityConfig) [][]string {
 	if len(tasks) == 0 {
 		return make([][]string, len(fields))
 	}
 	// get priorities
-	priorities := priority.Assign(tasks)
+	priorities := priority.Assign(tasks, priorityConfig)
 	// parse each field: NAME[:MODIFIER]*
 	fieldNames := make([]string, len(fields))
 	fieldModifiers := make([][]string, len(fields))

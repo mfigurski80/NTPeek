@@ -51,14 +51,14 @@ func main() {
 	// setup global flags
 	applyFn := []func(){
 		query.SetupFieldNameFlags(allFlagSets),
-		priority.SetupGlobalTagPriorityFlags(allFlagSets),
 	}
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
 	sortString := query.SetupSortFlag(allFlagSets)
 	filterString := query.SetupFilterFlag(allFlagSets)
+	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
 	// check if just peeking
-	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
+	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") || os.Args[1] == "h" {
 		os.Args = append([]string{os.Args[0], "p"}, os.Args[1:]...)
 	}
 
@@ -75,7 +75,8 @@ func main() {
 		}
 		params := query.QueryParamArgument{*sortString, *filterString}
 		res := query.QueryNotionEntryDB(AccessArgument, params)
-		render.RenderTasks(res, *selectRenderString)
+		priorityConfig := buildPriorityConfig()
+		render.RenderTasks(res, *selectRenderString, priorityConfig)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()

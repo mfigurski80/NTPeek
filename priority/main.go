@@ -6,39 +6,38 @@ import (
 	"github.com/mfigurski80/NTPeek/types"
 )
 
-type Priority uint8
-
-const (
-	LO Priority = iota
-	MED
-	HI
-)
-
-func Assign(rows []types.NotionEntry) []Priority {
+func Assign(rows []types.NotionEntry, config PriorityConfig) []Priority {
 	tags := make([][]string, len(rows))
 	for i, row := range rows {
 		tags[i] = make([]string, 0)
-		// TODO: assumes 'Tags' is a multi-select field in db
-		for _, t := range row["Tags"].(map[string]interface{})["multi_select"].([]interface{}) {
+		f, ok := row[config.Field].(map[string]interface{})
+		if !ok {
+			priorityError(config.Field, "not found in the database.")
+		}
+		tagResults, ok := f["multi_select"].([]interface{})
+		if !ok {
+			priorityError(config.Field, "is not a multi-select field")
+		}
+		for _, t := range tagResults {
 			tags[i] = append(tags[i], t.(map[string]interface{})["name"].(string))
 		}
 	}
 	priorities := make([]Priority, len(rows))
 	for i := range rows {
-		priorities[i] = ParsePriority(tags[i])
+		priorities[i] = parsePriority(tags[i], config)
 	}
 	return priorities
 }
 
-type TagsPriorityMap map[string]Priority
+func priorityError(field string, issue string) {
+	panic("Priority Assignment error: field (" + field + ") " + issue)
+}
 
-func ParsePriority(tags []string) Priority {
-	// expects global variables `TagsPriority: TagsPriorityMap`,
-	// and `DefaultPriority: Priority` build from command line flags
+func parsePriority(tags []string, config PriorityConfig) Priority {
 	minPriority := LO
 	anyFound := false
 	for _, tag := range tags {
-		if priority, ok := TagsPriority[strings.ToLower(tag)]; ok {
+		if priority, ok := config.Map[strings.ToLower(tag)]; ok {
 			anyFound = true
 			if priority > minPriority {
 				minPriority = priority
@@ -46,7 +45,7 @@ func ParsePriority(tags []string) Priority {
 		}
 	}
 	if !anyFound { // if no set tags, default
-		minPriority = DefaultPriority
+		minPriority = config.Default
 	}
 	return minPriority
 }

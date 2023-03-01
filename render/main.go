@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mfigurski80/NTPeek/priority"
 	"github.com/mfigurski80/NTPeek/types"
 	"github.com/muesli/termenv"
 )
@@ -13,7 +14,7 @@ import (
 
 var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9:]+)%`)
 
-func RenderTasks(tasks []types.NotionEntry, selectRender SelectRenderString) {
+func RenderTasks(tasks []types.NotionEntry, selectRender SelectRenderString, priorityConfig priority.PriorityConfig) {
 	lipgloss.SetColorProfile(termenv.TrueColor)
 	// find fields needed for render
 	m := selectRenderRegex.FindAllString(string(selectRender), -1)
@@ -22,7 +23,7 @@ func RenderTasks(tasks []types.NotionEntry, selectRender SelectRenderString) {
 		fields[i] = v[1 : len(v)-1]
 	}
 	// render field data
-	renderedFields := getRenderedFields(tasks, fields)
+	renderedFields := getRenderedFields(tasks, fields, priorityConfig)
 	// place field data into render string
 	formatString := selectRenderRegex.ReplaceAllString(string(selectRender), "%s")
 	ret := sprintfList(formatString+"\n", renderedFields)

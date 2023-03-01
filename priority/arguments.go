@@ -7,55 +7,44 @@ import (
 
 /// Tag Priority Configuration: sets up how to parse task tags
 
-var TagsPriority = TagsPriorityMap{
-	"exam":         HI,
-	"projecttask":  HI,
-	"presentation": HI,
-	"project":      HI,
-	"paper":        HI,
-	"meeting":      LO,
-	"read":         LO,
-	"utility":      LO,
-}
-
-var DefaultPriority = MED
-
-func SetupGlobalTagPriorityFlags(flagsets []*flag.FlagSet) func() {
+func SetupPriorityFlags(flagsets []*flag.FlagSet) func() PriorityConfig {
+	priorityField := ""
 	priorityTags := ""
 	loPriorityTags := ""
-	dPriority := true
+	dPriority := ""
 
 	for _, fs := range flagsets {
-		fs.StringVar(&priorityTags, "priority", "", "Comma-separated tags to render as prioritized (Default \"exam,projecttask,presentation,project,paper)\"")
-		fs.StringVar(&loPriorityTags, "lo-priority", "", "Comma-separated tags to render as unprioritized (Default \"meeting,read,utility\")")
-		fs.BoolVar(&dPriority, "default-priority", false, "Default avg priority if no tags are present")
+		fs.StringVar(&priorityField, "priority-field", "Tags",
+			"Multiselect field to look at for priority tags")
+		fs.StringVar(&priorityTags, "priority", "exam,projecttask,presentation,project,paper",
+			"Multiselect field and comma-separated tags to render as prioritized")
+		fs.StringVar(&loPriorityTags, "lo-priority", "meeting,read,utility",
+			"Comma-separated tags to render as unprioritized")
+		fs.StringVar(&dPriority, "default-priority", "med",
+			"Default priority no tags are present (low, med, high)")
 	}
 
-	return func() {
-		if priorityTags != "" {
-			// remove all imporant tags
-			for k := range TagsPriority {
-				if TagsPriority[k] == HI {
-					delete(TagsPriority, k)
-				}
-			}
-			for _, tag := range strings.Split(priorityTags, ",") {
-				TagsPriority[tag] = HI
-			}
+	return func() PriorityConfig {
+		// init with defaults
+		conf := PriorityConfig{
+			Field:   priorityField,
+			Map:     TagsPriorityMap{},
+			Default: MED,
 		}
-		if loPriorityTags != "" {
-			// remove all unimportant tags
-			for k := range TagsPriority {
-				if TagsPriority[k] == LO {
-					delete(TagsPriority, k)
-				}
-			}
-			for _, tag := range strings.Split(loPriorityTags, ",") {
-				TagsPriority[tag] = LO
-			}
+		// build map
+		for _, tag := range strings.Split(loPriorityTags, ",") {
+			conf.Map[strings.ToLower(tag)] = LO
 		}
-		if dPriority {
-			DefaultPriority = MED
+		for _, tag := range strings.Split(priorityTags, ",") {
+			conf.Map[strings.ToLower(tag)] = HI
 		}
+		// set default
+		switch strings.ToLower(dPriority) {
+		case "low", "lo":
+			conf.Default = LO
+		case "high", "hi":
+			conf.Default = HI
+		}
+		return conf
 	}
 }
