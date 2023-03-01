@@ -49,9 +49,6 @@ func main() {
 	allFlagSets := []*flag.FlagSet{peekArguments}
 
 	// setup global flags
-	applyFn := []func(){
-		query.SetupFieldNameFlags(allFlagSets),
-	}
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
 	sortString := query.SetupSortFlag(allFlagSets)
 	filterString := query.SetupFilterFlag(allFlagSets)
@@ -70,9 +67,7 @@ func main() {
 	case "p", "peek":
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
-		for _, fn := range applyFn {
-			fn()
-		}
+
 		params := query.QueryParamArgument{*sortString, *filterString}
 		res := query.QueryNotionEntryDB(AccessArgument, params)
 		priorityConfig := buildPriorityConfig()
