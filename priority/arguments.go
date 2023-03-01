@@ -18,9 +18,9 @@ func SetupPriorityFlags(flagsets []*flag.FlagSet) func() PriorityConfig {
 			"Multiselect field to look at for priority tags")
 		fs.StringVar(&priorityTags, "priority", "exam,projecttask,presentation,project,paper",
 			"Multiselect field and comma-separated tags to render as prioritized")
-		fs.StringVar(&loPriorityTags, "lo-priority", "meeting,read,utility",
+		fs.StringVar(&loPriorityTags, "priority-lo", "meeting,read,utility",
 			"Comma-separated tags to render as unprioritized")
-		fs.StringVar(&dPriority, "default-priority", "med",
+		fs.StringVar(&dPriority, "priority-default", "med",
 			"Default priority no tags are present (low, med, high)")
 	}
 
