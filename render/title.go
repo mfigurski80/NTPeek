@@ -10,11 +10,11 @@ var titleStyle = map[priority.Priority]lipgloss.Style{
 	priority.LO: lipgloss.NewStyle().Faint(true),
 }
 
-func renderTitle(fields []interface{}, modifiers []string, p []priority.Priority) []string {
+func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		res[i] = parseNotionRichText(field.(map[string]interface{})["title"].([]interface{}))
-		switch p[i] {
+		switch config.Priority[i] {
 		case priority.HI:
 			res[i] = titleStyle[priority.HI].Render("!" + res[i])
 		case priority.MED:
@@ -24,7 +24,7 @@ func renderTitle(fields []interface{}, modifiers []string, p []priority.Priority
 		}
 	}
 	// TODO: support modifiers?
-	return res
+	return res, nil
 }
 
 func parseNotionRichText(richText []interface{}) string {

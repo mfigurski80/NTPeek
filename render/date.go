@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mfigurski80/NTPeek/priority"
 )
 
 var loc, _ = time.LoadLocation("Local")
@@ -21,10 +20,11 @@ var overdueDateStyle = map[bool]lipgloss.Style{
 
 /// Render date field relative to local time
 
-func renderDate(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
+func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) {
+	res := make([]string, len(fields))
 	// parse modifiers
 	stringifyStrategy := _RELATIVE
-	for _, mod := range modifiers {
+	for _, mod := range config.Modifiers {
 		switch mod {
 		case "relative", "rel":
 			stringifyStrategy = _RELATIVE
@@ -33,21 +33,20 @@ func renderDate(fields []interface{}, modifiers []string, _ []priority.Priority)
 		case "full", "ful":
 			stringifyStrategy = _FULL
 		default:
-			panic("Date field doesn't support modifier '" + mod + "'")
+			return res, fmt.Errorf(errStart+err.UnsupportedMod, config.Name, "date", mod, "[relative, simple, full]")
 		}
 	}
 	// render into result
-	res := make([]string, len(fields))
 	for i, field := range fields {
 		date := field.(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
 		t, err := time.ParseInLocation("2006-01-02", date[:10], loc)
 		if err != nil {
-			panic(err)
+			return res, fmt.Errorf(errStart+err.Internal, config.Name, err.Error())
 		}
 		relative := fmt.Sprintf("(%s)", stringifyDateMap[stringifyStrategy](t))
 		res[i] = overdueDateStyle[isOverdue(t)].Render(relative)
 	}
-	return res
+	return res, nil
 }
 
 /// Different ways of stringifying date

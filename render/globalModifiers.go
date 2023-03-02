@@ -3,8 +3,6 @@ package render
 import (
 	"github.com/acarl005/stripansi"
 	"github.com/charmbracelet/lipgloss"
-
-	"github.com/mfigurski80/NTPeek/priority"
 )
 
 /// Global modifiers: can be applied to ANY field type because...
@@ -30,9 +28,13 @@ var _GLOBAL_RENDER_MODIFIERS map[string]modifierFunc = map[string]modifierFunc{
 // Alter render function to apply global modifiers
 func withGlobalModifiers(renderFn renderRowFunction) renderRowFunction {
 	// return wrapped renderRowFunction
-	return func(fields []interface{}, modifiers []string, ps []priority.Priority) []string {
-		global, local := findRecognizedModifiers(modifiers)
-		rendered := renderFn(fields, local, ps)
+	return func(fields []interface{}, config renderRowConfig) ([]string, error) {
+		global, local := findRecognizedModifiers(config.Modifiers)
+		config.Modifiers = local
+		rendered, err := renderFn(fields, config)
+		if err != nil {
+			return rendered, err
+		}
 		// build global style modifier
 		style := lipgloss.NewStyle()
 		for _, mod := range global {
@@ -43,7 +45,7 @@ func withGlobalModifiers(renderFn renderRowFunction) renderRowFunction {
 		for i, r := range rendered {
 			styled[i] = style.Render(r)
 		}
-		return styled
+		return styled, nil
 	}
 }
 

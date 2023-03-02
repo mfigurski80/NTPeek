@@ -2,12 +2,11 @@ package render
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mfigurski80/NTPeek/priority"
 )
 
 /// Render select field with color
 
-func renderSelect(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
+func renderSelect(fields []interface{}, _ renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	for i, r := range fields {
 		body := r.(map[string]interface{})["select"].(map[string]interface{})
@@ -21,5 +20,5 @@ func renderSelect(fields []interface{}, modifiers []string, _ []priority.Priorit
 	}
 	// TODO: support modifiers? global: right, center, left. local: no-color
 	// TODO: support priority?
-	return res
+	return res, nil
 }

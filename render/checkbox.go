@@ -1,8 +1,6 @@
 package render
 
-import "github.com/mfigurski80/NTPeek/priority"
-
-func renderCheckbox(fields []interface{}, modifiers []string, _ []priority.Priority) []string {
+func renderCheckbox(fields []interface{}, _ renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	for i, field := range fields {
 		value := field.(map[string]interface{})["checkbox"].(bool)
@@ -12,5 +10,5 @@ func renderCheckbox(fields []interface{}, modifiers []string, _ []priority.Prior
 			res[i] = "❌"
 		}
 	}
-	return res
+	return res, nil
 }

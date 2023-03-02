@@ -3,11 +3,13 @@ package render
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mfigurski80/NTPeek/priority"
 	"github.com/mfigurski80/NTPeek/types"
 	"github.com/muesli/termenv"
+	"golang.org/x/exp/maps"
 )
 
 /// RenderTasks renders a list of tasks
@@ -42,45 +44,47 @@ func sprintfList(format string, list [][]string) string {
 	return result
 }
 
-/// Replaces every match with a field-specific render of its value
-
-// func printTasks(tasks []NotionEntry, selectRender SelectRenderString) {
-//
-// maxClassLen := 0
-// classLengths := make([]int, len(tasks))
-// for i, task := range tasks {
-// if len(task.Class) > maxClassLen {
-// maxClassLen = len(task.Class)
-// }
-// classLengths[i] = len(task.Class)
-// }
-// for _, task := range tasks {
-// // GET CLASS + FORMAT
-// hi := colorMap[task.ClassColor]
-// class := lipgloss.NewStyle().
-// Background(lipgloss.Color(hi.Bg)).
-// Foreground(lipgloss.Color(hi.Fore)).
-// Render(task.Class)
-// class = lipgloss.NewStyle().
-// Width(maxClassLen).
-// Align(lipgloss.Right).
-// Render(class)
-//
-// // GET IMPORTANCE
-// importanceVal := parseImportance(task)
-// importance := formatImportance(
-// importanceVal,
-// [3]string{"│ ", "│ ", "│!"},
-// )
-//
-// // GET TASK ID
-// // id := lipgloss.NewStyle().
-// // Faint(true).
-// // Render(fmt.Sprintf("%.2s", task.Id))
-//
-// // PRINT
-// // fmt.Printf("%s %s %s\n", class, name, due)
-// fmt.Printf("%s %s%s  %s\n", class, importance, name, due)
-//
-// }
-// }
+func getRenderedFields(tasks []types.NotionEntry, fields []string, priorityConfig priority.PriorityConfig) [][]string {
+	if len(tasks) == 0 {
+		return make([][]string, len(fields))
+	}
+	// get priorities
+	priorities := priority.Assign(tasks, priorityConfig)
+	// parse each field: NAME[:MODIFIER]*
+	fieldNames := make([]string, len(fields))
+	fieldModifiers := make([][]string, len(fields))
+	for i, field := range fields {
+		p := strings.Split(field, ":")
+		fieldNames[i], fieldModifiers[i] = p[0], p[1:]
+	}
+	// get values list for each interesting field
+	fieldVals := make([][]interface{}, len(fields))
+	for i, name := range fieldNames {
+		fieldVals[i] = make([]interface{}, len(tasks))
+		if tasks[0][name] == nil {
+			fmt.Printf(errStart+err.FieldNotFound, name, maps.Keys(tasks[0]))
+			continue
+		}
+		for j, task := range tasks {
+			fieldVals[i][j] = task[name]
+		}
+	}
+	// render each field
+	rendered := make([][]string, len(fields))
+	for i, name := range fieldNames {
+		renderFunc, err := getGenericRenderFunc(fieldVals[i], name)
+		if err != nil {
+			fmt.Printf(err.Error())
+			rendered[i] = make([]string, len(fieldVals[i]))
+			continue
+		}
+		rendered[i], err = renderFunc(fieldVals[i], renderRowConfig{
+			name, fieldModifiers[i], priorities,
+		})
+		if err != nil {
+			fmt.Printf(err.Error())
+		}
+	}
+	// return rendered fields
+	return rendered
+}
