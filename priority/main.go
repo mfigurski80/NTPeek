@@ -1,9 +1,11 @@
 package priority
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/mfigurski80/NTPeek/types"
+	"golang.org/x/exp/maps"
 )
 
 func Assign(rows []types.NotionEntry, config PriorityConfig) []Priority {
@@ -12,11 +14,11 @@ func Assign(rows []types.NotionEntry, config PriorityConfig) []Priority {
 		tags[i] = make([]string, 0)
 		f, ok := row[config.Field].(map[string]interface{})
 		if !ok {
-			priorityError(config.Field, "not found in the database.")
+			panic(fmt.Errorf(errType.FieldNotFound, config.Field, maps.Keys(row)))
 		}
 		tagResults, ok := f["multi_select"].([]interface{})
 		if !ok {
-			priorityError(config.Field, "is not a multi-select field")
+			panic(fmt.Errorf(errType.UnsupportedType, config.Field))
 		}
 		for _, t := range tagResults {
 			tags[i] = append(tags[i], t.(map[string]interface{})["name"].(string))
@@ -27,10 +29,6 @@ func Assign(rows []types.NotionEntry, config PriorityConfig) []Priority {
 		priorities[i] = parsePriority(tags[i], config)
 	}
 	return priorities
-}
-
-func priorityError(field string, issue string) {
-	panic("Priority Assignment error: field (" + field + ") " + issue)
 }
 
 func parsePriority(tags []string, config PriorityConfig) Priority {

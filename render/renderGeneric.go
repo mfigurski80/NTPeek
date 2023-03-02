@@ -37,7 +37,7 @@ func getGenericRenderFunc(field []interface{}, name string) (renderRowFunction, 
 	gMod := withGlobalModifiers
 	f, ok := fRenderFuncs[fVals["type"].(string)]
 	if !ok {
-		return renderNil, fmt.Errorf(errStart+err.UnsupportedType, name, fVals["type"].(string), maps.Keys(fRenderFuncs))
+		return renderNil, fmt.Errorf(errType.UnsupportedType, name, fVals["type"].(string), maps.Keys(fRenderFuncs))
 	}
 	return gMod(f), nil
 }

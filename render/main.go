@@ -62,7 +62,7 @@ func getRenderedFields(tasks []types.NotionEntry, fields []string, priorityConfi
 	for i, name := range fieldNames {
 		fieldVals[i] = make([]interface{}, len(tasks))
 		if tasks[0][name] == nil {
-			fmt.Printf(errStart+err.FieldNotFound, name, maps.Keys(tasks[0]))
+			fmt.Printf(errType.FieldNotFound, name, maps.Keys(tasks[0]))
 			continue
 		}
 		for j, task := range tasks {

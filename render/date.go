@@ -33,7 +33,7 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		case "full", "ful":
 			stringifyStrategy = _FULL
 		default:
-			return res, fmt.Errorf(errStart+err.UnsupportedMod, config.Name, "date", mod, "[relative, simple, full]")
+			return res, fmt.Errorf(errType.UnsupportedMod, config.Name, "date", mod, "[relative, simple, full]")
 		}
 	}
 	// render into result
@@ -41,7 +41,7 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		date := field.(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
 		t, err := time.ParseInLocation("2006-01-02", date[:10], loc)
 		if err != nil {
-			return res, fmt.Errorf(errStart+err.Internal, config.Name, err.Error())
+			return res, fmt.Errorf(errType.Internal, config.Name, err.Error())
 		}
 		relative := fmt.Sprintf("(%s)", stringifyDateMap[stringifyStrategy](t))
 		res[i] = overdueDateStyle[isOverdue(t)].Render(relative)
