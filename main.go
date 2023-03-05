@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/mfigurski80/NTPeek/priority"
 	"github.com/mfigurski80/NTPeek/query"
 	"github.com/mfigurski80/NTPeek/render"
@@ -69,7 +70,9 @@ func main() {
 		peekArguments.Parse(os.Args[2:])
 
 		params := query.QueryParamArgument{*sortString, *filterString}
-		res := query.QueryNotionEntryDB(AccessArgument, params)
+		res, err := query.QueryNotionEntryDB(AccessArgument, params)
+		exitOnError(err)
+
 		priorityConfig := buildPriorityConfig()
 		render.RenderTasks(res, *selectRenderString, priorityConfig)
 	default:
@@ -92,4 +95,16 @@ func showUsage() {
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
 	fmt.Println("  p|[none] -- show tasks from db")
+}
+
+func exitOnError(err error) {
+	if err == nil {
+		return
+	}
+	fmt.Println(
+		lipgloss.NewStyle().
+			Foreground(lipgloss.Color("9")).
+			Render(err.Error()),
+	)
+	os.Exit(1)
 }
