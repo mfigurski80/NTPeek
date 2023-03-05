@@ -7,7 +7,9 @@ Set Height 500
 Hide
 Type "export NT_TOKEN=secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
 Enter
-Type 'alias nta="./nt $NT_TOKEN 979bf78281914ca5895555168b2f7396"'
+Type "export NT_DB=979bf78281914ca5895555168b2f7396"
+Enter
+Type 'alias nta="./nt $NT_TOKEN $NT_DB"'
 Enter
 Show
 
