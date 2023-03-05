@@ -12,25 +12,80 @@ Default usage requires just the token and database id (long string id in url of 
 
 Version and Help text can be viewed by calling the tool with `v` or `h` respectively
 
-## Tailoring to Custom Database
+## Tailoring to Custom Database 
 
-This tool is somewhat optimized (read hard-coded), and currently expects a series of fields to display with: a title, timestamp, checkbox, select, and multiselect. The field name defaults are reasonable, but can be customized with the following flags:
+Do your column names not match the defaults? You might have to pass additional flags as 'templates' for the tool to interact properly with your personal Notion database
 
-- `--title` : name of the title field for actual task name
+### Select
 
-- `--done` : name of checkbox field to filter incomplete tasks
+A custom render string can be provided with a select flag: `--select="%Class:right%|%Name% %Due%"`. This follows a simple markup language syntax, where:
 
-- `--date` : name of date field
+- All elements outside of the `%..%` tags are treated as markup, and will be rendered exactly
 
-- `--category` : name of category field to use with color
+- All elements inside the `%..%` tags are treated as field names: they are replaced with data corresponding to the field name within the Notion database, and can also be modified with some type-specific keywords by appending them like so: `:<modifier>`. Note that the render is type-specific. The list of currently supported render types includes: title, rich text, select, multiselect, date, checkbox.
 
-- `--tag` : name of multi-select field to define importance. Tasks with tags that are high-importance will get highlighted, while those without will be dimmed.
+Global modifiers include formatting specifiers, especially `:right`, `:left`, `:center`: for aligning an entire column
 
-Importance of tags is also configurable:
+Type specific modifiers, currently, include:
 
-- `--important` : comma-separated list of tags to highlight as important
+- date accepts `:relative`, `:simple`, and `:full` for different representations of date values
 
-- `--unimportant` : comma-separated list of tags to dim as un-important
+
+#### Special Select Fields
+
+Although the field name specified in a tag usually has to actually exist on your Notion DB, there are some special fields that Notion or the tool provides. These are listed here:
+
+- `%_id%` will render the notion page id for the element
+
+- `%_pr%` will render an exclamation point if assigned task priority is high (see the priority flag). Still WIP
+
+### Sorting
+
+A sort can be imposed on the data with the sort flag: `--sort="Due,Class:desc`. This pattern is similar to the select flag syntax: you need to pass comma-separate field names to sort by, with an optional `:desc` or `:asc` modifier on each. Note that the sorts are ascending by default
+
+### Filtering
+
+Custom filters can be specified with the filter flag: `--filter="Due:date < NEXT 1 WEEK"`. The syntax is build to accept single conditions (structured as <name>:<type> <operator> <value>). These are built to match the Notion filter queries as close as possible.
+
+Supported field types occasionally have unique syntax. These field types are listed below, along with some examples of conditions one might want to impose:
+
+1. **Title / Text**: 
+
+  - Check if field is empty with: `Name:text = EMPTY`.
+
+  - Check if text starts/ends with a tag: `Name:text STARTS_WITH "Issue" OR Name:text ENDS_WITH "Issue"`
+
+2. **Checkbox**: check if task is complete with `Done:checkbox = TRUE`.
+
+3. **Multiselect**: check if contains a tag with `Tags:multiselect CONTAINS "Meeting"`
+
+4. **Select**: check for equivalence with `Class:select = "Bio"`
+
+5. **Date**: 
+
+  - Check if falls before specific point: `Due:date <= 2023/01/01`
+
+  - Check if falls between relative dates: `Due:date > LAST 1 WEEK AND Due:date < NEXT 1 MONTH`
+
+6. **Number**: compare against static with `Amount:number < 100`
+
+#### Combining Filter Conditions
+
+Filter conditions can be combined with `AND` and `OR` clauses to arbitrary depth. Note that when using both in a single `--filter` argument, one must use parenthesis to disambiguate between the order of the clauses.
+
+### Priority
+
+Some fields, including text, will be rendered differently based on the priority assigned to the task by the tool: this is a way of differentiating entries that might be more or less important, visually.
+
+The priority assignment is entirely based on tags. The following flags are used to control this process:
+
+- `--priority-field` : string flag specifying the field name in your Notion DB corresponding to a multi-select field  
+
+- `--priority` : comma-separate values of field names to assign 'high priority' to
+
+- `--priority-lo` : comma-separate values of field names to assign 'low priority' to
+
+- `--priority-default` : default priority to assign when no distinguishing tags are present
 
 ## Installation
 
