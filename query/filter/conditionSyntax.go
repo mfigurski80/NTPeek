@@ -42,7 +42,7 @@ func (c *conditionList) String() string {
 
 /// RENDER FUNCTION
 
-func (c *condition) Render() string {
+func (c *condition) Render() (string, error) {
 	if c.Simple != nil {
 		return c.Simple.Render()
 	} else if c.List == nil {
@@ -54,10 +54,18 @@ func (c *condition) Render() string {
 		keyword = "or"
 		conds = c.List.OrConditions
 	}
-	ret := `{"` + keyword + `": [` + c.Start.Render() + ", "
+	st, err := c.Start.Render()
+	if err != nil {
+		return "", err
+	}
+	ret := `{"` + keyword + `": [` + st + ", "
 	for _, cond := range conds {
-		ret += cond.Render() + ", "
+		r, err := cond.Render()
+		if err != nil {
+			return "", err
+		}
+		ret += r + ", "
 	}
 	ret = ret[:len(ret)-2] + "]}" // remove last comma
-	return ret
+	return ret, nil
 }

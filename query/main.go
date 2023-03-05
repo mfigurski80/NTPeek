@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/mfigurski80/NTPeek/query/filter"
 	"github.com/mfigurski80/NTPeek/types"
 )
 
@@ -20,8 +21,14 @@ type QueryParamArgument struct {
 
 func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) []types.NotionEntry {
 	// do request
-	sortDirective := formatSortDirective(param.Sort)
-	filterDirective := formatFilterDirective(param.Filter)
+	sortDirective, err := formatSortDirective(param.Sort)
+	if err != nil {
+		panic(err)
+	}
+	filterDirective, err := filter.ParseFilter(param.Filter)
+	if err != nil {
+		panic(err)
+	}
 	res, err := doNotionDBRequest(access, sortDirective, filterDirective)
 	if err != nil {
 		panic(err)

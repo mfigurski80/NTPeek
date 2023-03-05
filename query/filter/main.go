@@ -4,12 +4,12 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
-func ParseFilter(filter string) string {
+func ParseFilter(filter string) (string, error) {
 	// fmt.Println("Got Filter: ", filter)
 	p := setupParser()
 	f, err := p.ParseString("", "("+filter+")")
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	// fmt.Println("Rendered:", f.Render())
 	return f.Render()
@@ -21,7 +21,7 @@ func setupParser() *participle.Parser[condition] {
 		valueUnion,
 	)
 	if err != nil {
-		panic(err)
+		panic("UNREACHABLE unable to build parser: " + err.Error())
 	}
 	return parser
 }

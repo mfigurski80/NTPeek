@@ -3,6 +3,8 @@ package filter
 import (
 	"fmt"
 	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 type filter struct {
@@ -63,28 +65,37 @@ func (o *operator) String() string {
 
 /// FILTER RENDER
 
-func (f *filter) Render() string {
+func (f *filter) Render() (string, error) {
 	template := `{"property": "%s", "%s": {%s}}`
 	// get property name
 	propertyName := string(*f.Field)
 	// get typename
-	typeName := f.Type.Type
+	typeName := fieldTypeString(f.Type.Type)
 	if t, ok := typeNameOverride[f.Type.Type]; ok {
-		typeName = t
+		typeName = fieldTypeString(t)
 	}
 	// get condition: in-order check value, type, op
 	condition := ""
 	if c, ok := operationValue[f.Operator.String()+" "+f.Value.String()]; ok {
+		// op/value check: some (like = EMPTY) correspond to unique filter
 		condition = c
 	} else if c, ok := typeOperationKeyword[typeName][f.Operator.String()]; ok {
+		// type/op check: some (like date =) correspond to unique filter
 		condition = fmt.Sprintf(`"%s": %s`, c, f.Value.Render())
 	} else if c, ok := defaultOperationKeyword[f.Operator.String()]; ok {
+		// default: ensure type supports op, type matches value
+		if _, ok := supportedTypeOperations[typeName][f.Operator.String()]; !ok {
+			k := maps.Keys(supportedTypeOperations[typeName])
+			return "", fmt.Errorf(errType.TypeOpMismatch, typeName, f.Operator.String(), k)
+		}
+		if matches := valueMatchesType(f.Value, typeName); !matches {
+			return "", fmt.Errorf(errType.TypeValMismatch, typeName, f.Value)
+		}
 		condition = fmt.Sprintf(`"%s": %s`, c, f.Value.Render())
 	} else {
-		panic(fmt.Sprintf("invalid filter: %s", f.String()))
+		return "", fmt.Errorf(errType.InvalidKeyword, "Operator", f.Operator.String())
 	}
-	// return render
-	return fmt.Sprintf(template, propertyName, typeName, condition)
+	return fmt.Sprintf(template, propertyName, typeName, condition), nil
 }
 
 var typeNameOverride = map[string]string{
@@ -92,19 +103,31 @@ var typeNameOverride = map[string]string{
 	"text":        "title", // TODO: could also be rich_text?
 }
 
+/// DEFINITIONS for ssigning notion filters to syntax
+
 var operationValue = map[string]string{
 	"= EMPTY":  `"is_empty": true`,
 	"!= EMPTY": `"is_not_empty": true`,
 }
 
-var typeOperationKeyword = map[string]map[string]string{
-	"date": {
+var typeOperationKeyword = map[fieldTypeString]map[string]string{
+	Date: {
 		"!=": "",
 		">":  "after",
 		">=": "on_or_after",
 		"<":  "before",
 		"<=": "on_or_before",
 	},
+}
+
+// given need default operation keyword, ensure type supports it
+var supportedTypeOperations = map[fieldTypeString]map[string]struct{}{
+	Date:        {}, // no additional ops over typeOperationKeyword
+	Checkbox:    {"=": {}, "!=": {}},
+	Select:      {"=": {}, "!=": {}},
+	Number:      {"=": {}, "!=": {}, ">": {}, ">=": {}, "<": {}, "<=": {}},
+	Multiselect: {"CONTAINS": {}, "!CONTAINS": {}},
+	Text:        {"=": {}, "!=": {}, "CONTAINS": {}, "!CONTAINS": {}, "STARTS_WITH": {}, "ENDS_WITH": {}},
 }
 
 var defaultOperationKeyword = map[string]string{

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func formatSortDirective(sortString SortString) string {
+func formatSortDirective(sortString SortString) (string, error) {
 	// from "Due:desc,Name"	=> '[{"property": "Due", "direction": "descending"}, {"property": "Name", "direction": "ascending"}]'
 	var sortDirective string = "["
 	for i, prop := range strings.Split(sortString, ",") {
@@ -18,10 +18,10 @@ func formatSortDirective(sortString SortString) string {
 			case "asc":
 				dir = "ascending"
 			default:
-				panic(fmt.Errorf("Invalid sort direction: %s. Use 'desc', 'asc'", dir))
+				return "", fmt.Errorf(errType.InvalidSortDirection, sp[1])
 			}
 		} else if len(sp) > 2 {
-			panic(fmt.Errorf("Invalid sort string: %s. Use 'field:dir'", prop))
+			return "", fmt.Errorf(errType.InvalidSortSyntax, prop)
 		}
 		if i != 0 {
 			sortDirective += ", "
@@ -29,5 +29,5 @@ func formatSortDirective(sortString SortString) string {
 		sortDirective += fmt.Sprintf(`{"property": "%s", "direction": "%s"}`, field, dir)
 	}
 	sortDirective += "]"
-	return sortDirective
+	return sortDirective, nil
 }
