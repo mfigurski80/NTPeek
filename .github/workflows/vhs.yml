@@ -29,13 +29,16 @@ jobs:
         node-version: 16
 
     - name: Build Binary
-      run: echo "NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" > .env && go generate && go build -v -o nt
+      run: go generate && go build -v -o nt
 
     - name: Setup VHS
       run: sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
+
+    - name: Setup Alias
+      run: alias nta="nt ${{ secrets.NOTION_TOKEN }} 979bf78281914ca5895555168b2f7396" 
 
     - name: VHS Recordings 📼
       run: for file in images/*.tape; do vhs "$file"; done
