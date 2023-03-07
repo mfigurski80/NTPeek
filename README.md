@@ -18,7 +18,9 @@ Do your column names not match the defaults? You might have to pass additional f
 
 ### Select
 
-A custom render string can be provided with a select flag: `--select="%Class:right%|%Name% %Due%"`. This follows a simple markup language syntax, where:
+![Select Formatting Usage](http://ntpeek-usage.surge.sh/select_usage.gif)
+
+A custom render string can be provided with a select flag, as shown in the example above. This follows a simple markup language syntax, where:
 
 - All elements outside of the `%..%` tags are treated as markup, and will be rendered exactly
 
@@ -29,7 +31,6 @@ Global modifiers include formatting specifiers, especially `:right`, `:left`, `:
 Type specific modifiers, currently, include:
 
 - date accepts `:relative`, `:simple`, and `:full` for different representations of date values
-
 
 #### Special Select Fields
 
@@ -45,7 +46,11 @@ A sort can be imposed on the data with the sort flag: `--sort="Due,Class:desc`. 
 
 ### Filtering
 
+
+
 Custom filters can be specified with the filter flag: `--filter="Due:date < NEXT 1 WEEK"`. The syntax is build to accept single conditions (structured as <name>:<type> <operator> <value>). These are built to match the Notion filter queries as close as possible.
+
+![Filter Formatting Usage](http://ntpeek-usage.surge.sh/filter_usage.gif)
 
 Supported field types occasionally have unique syntax. These field types are listed below, along with some examples of conditions one might want to impose:
 

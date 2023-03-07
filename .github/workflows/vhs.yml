@@ -9,7 +9,7 @@ name: VHS Usage Recording 📼
 on:
   push:
     branches: [ "master" ]
-    paths: ['**/*.tape', '**/*.go']
+    paths: ['**/*.tape', '**/*.go', '.github/workflows/vhs.yml']
   workflow_dispatch:
 
 jobs:
@@ -36,9 +36,6 @@ jobs:
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
-
-    - name: Setup Alias
-      run: alias nta="nt ${{ secrets.NOTION_TOKEN }} 979bf78281914ca5895555168b2f7396" 
 
     - name: VHS Recordings 📼
       run: for file in images/*.tape; do vhs "$file"; done
