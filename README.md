@@ -46,9 +46,7 @@ A sort can be imposed on the data with the sort flag: `--sort="Due,Class:desc`. 
 
 ### Filtering
 
-
-
-Custom filters can be specified with the filter flag: `--filter="Due:date < NEXT 1 WEEK"`. The syntax is build to accept single conditions (structured as <name>:<type> <operator> <value>). These are built to match the Notion filter queries as close as possible.
+Custom filters can be specified with the filter flag: `--filter="Due:date < NEXT 1 WEEK"`. The syntax is build to accept single conditions (structured as `<name>:<type> <operator> <value>`). These are built to match the Notion filter queries as close as possible.
 
 ![Filter Formatting Usage](http://ntpeek-usage.surge.sh/filter_usage.gif)
 
@@ -56,9 +54,9 @@ Supported field types occasionally have unique syntax. These field types are lis
 
 1. **Title / Text**: 
 
-  - Check if field is empty with: `Name:text = EMPTY`.
+   - Check if field is empty with: `Name:text = EMPTY`.
 
-  - Check if text starts/ends with a tag: `Name:text STARTS_WITH "Issue" OR Name:text ENDS_WITH "Issue"`
+   - Check if text starts/ends with a tag: `Name:text STARTS_WITH "Issue" OR Name:text ENDS_WITH "Issue"`
 
 2. **Checkbox**: check if task is complete with `Done:checkbox = TRUE`.
 
@@ -68,9 +66,9 @@ Supported field types occasionally have unique syntax. These field types are lis
 
 5. **Date**: 
 
-  - Check if falls before specific point: `Due:date <= 2023/01/01`
+   - Check if falls before specific point: `Due:date <= 2023/01/01`
 
-  - Check if falls between relative dates: `Due:date > LAST 1 WEEK AND Due:date < NEXT 1 MONTH`
+   - Check if falls between relative dates: `Due:date > LAST 1 WEEK AND Due:date < NEXT 1 MONTH`
 
 6. **Number**: compare against static with `Amount:number < 100`
 
