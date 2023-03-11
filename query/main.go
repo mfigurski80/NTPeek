@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/mfigurski80/NTPeek/query/filter"
+	"github.com/mfigurski80/NTPeek/filter"
 	"github.com/mfigurski80/NTPeek/types"
 )
 
