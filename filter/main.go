@@ -1,13 +1,23 @@
 package filter
 
 import (
+	"strings"
+
 	"github.com/alecthomas/participle/v2"
 )
 
-func ParseFilter(filter string) (string, error) {
-	// fmt.Println("Got Filter: ", filter)
+func ParseFilter(filter []FilterString) (string, error) {
+	// build composite
+	if len(filter) == 0 {
+		return "", nil
+	}
+	comp := "(" + filter[0] + ")"
+	if len(filter) > 1 {
+		comp = "((" + strings.Join(filter, ") AND (") + "))"
+	}
+	// parse
 	p := setupParser()
-	f, err := p.ParseString("", "("+filter+")")
+	f, err := p.ParseString("", comp)
 	if err != nil {
 		return "", err
 	}

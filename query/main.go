@@ -16,7 +16,7 @@ type QueryAccessArgument struct {
 
 type QueryParamArgument struct {
 	Sort   SortString
-	Filter FilterString
+	Filter []filter.FilterString
 }
 
 func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) ([]types.NotionEntry, error) {

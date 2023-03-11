@@ -7,8 +7,7 @@ import (
 )
 
 func doNotionDBRequest(access QueryAccessArgument, sort string, filter string) (*http.Response, error) {
-	// expects global variable `FieldNamesConfig: FieldNames`
-	// built from command line flags (or default) for filter/sorting
+	// sort and filter should be FORMATTED JSON
 	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", access.DBId)
 
 	payload := strings.NewReader(`{

@@ -14,16 +14,3 @@ func SetupSortFlag(flagsets []*flag.FlagSet) *SortString {
 	}
 	return &sort
 }
-
-/// `--filter` flag provides way to filter by multiple fields
-
-// Represents grammar string defined in query/filter/*Syntax.go
-type FilterString = string
-
-func SetupFilterFlag(flagsets []*flag.FlagSet) *FilterString {
-	var filter string
-	for _, fs := range flagsets {
-		fs.StringVar(&filter, "filter", "Done:checkbox = FALSE AND Due:date < NEXT 10 DAY", "Filter query language: see github for full documentation")
-	}
-	return &filter
-}

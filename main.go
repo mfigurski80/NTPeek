@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mfigurski80/NTPeek/filter"
 	"github.com/mfigurski80/NTPeek/priority"
 	"github.com/mfigurski80/NTPeek/query"
 	"github.com/mfigurski80/NTPeek/render"
@@ -26,24 +27,16 @@ var AccessArgument = query.QueryAccessArgument{
 var Version string
 
 func main() {
-
 	// insufficient args
 	if len(os.Args) < 2 {
 		fmt.Println("nt: insufficient arguments", os.Args)
 		fmt.Println()
 		showUsage()
-		return
+		os.Exit(1)
 	}
 
-	// try parse auth secret, db id
-	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
-		AccessArgument.Secret = os.Args[1]
-		os.Args = append(os.Args[:1], os.Args[2:]...)
-	}
-	if len(os.Args) > 1 && len(os.Args[1]) == 32 {
-		AccessArgument.DBId = os.Args[1]
-		os.Args = append(os.Args[:1], os.Args[2:]...)
-	}
+	// parse access
+	parseAccessArgument()
 
 	// setup command flag sets
 	peekArguments := flag.NewFlagSet("p", flag.ExitOnError)
@@ -52,7 +45,7 @@ func main() {
 	// setup global flags
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
 	sortString := query.SetupSortFlag(allFlagSets)
-	filterString := query.SetupFilterFlag(allFlagSets)
+	filterStrings := filter.SetupFilterFlag(allFlagSets)
 	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
 	// check if just peeking
@@ -69,7 +62,9 @@ func main() {
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 
-		params := query.QueryParamArgument{*sortString, *filterString}
+		fmt.Println(filterStrings)
+
+		params := query.QueryParamArgument{*sortString, *filterStrings}
 		res, err := query.QueryNotionEntryDB(AccessArgument, params)
 		exitOnError(err)
 
@@ -82,10 +77,21 @@ func main() {
 	}
 }
 
+func parseAccessArgument() {
+	// try parse auth secret, db id, in that order
+	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
+		AccessArgument.Secret = os.Args[1]
+		os.Args = append(os.Args[:1], os.Args[2:]...)
+	}
+	if len(os.Args) > 1 && len(os.Args[1]) == 32 {
+		AccessArgument.DBId = os.Args[1]
+		os.Args = append(os.Args[:1], os.Args[2:]...)
+	}
+}
+
 func requireAccess(a query.QueryAccessArgument) {
 	if a.Secret == "" || a.DBId == "" {
-		fmt.Println("Please specify a valid Notion Secret Token and Database ID as the first and second positional arguments for this command")
-		os.Exit(1)
+		exitOnError(fmt.Errorf("Please specify a valid Notion Secret Token and Database ID as the first and second positional arguments for this command"))
 	}
 }
 
