@@ -13,7 +13,12 @@ var titleStyle = map[priority.Priority]lipgloss.Style{
 func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	for i, field := range fields {
-		res[i] = parseNotionRichText(field.(map[string]interface{})["title"].([]interface{}))
+		f, ok := field.(map[string]interface{})["title"].([]interface{})
+		if !ok {
+			res[i] = ""
+			continue
+		}
+		res[i] = parseNotionRichText(f)
 		switch config.Priority[i] {
 		case priority.HI:
 			res[i] = titleStyle[priority.HI].Render("!" + res[i])

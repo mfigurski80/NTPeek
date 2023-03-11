@@ -9,7 +9,11 @@ import (
 func renderSelect(fields []interface{}, _ renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	for i, r := range fields {
-		body := r.(map[string]interface{})["select"].(map[string]interface{})
+		body, ok := r.(map[string]interface{})["select"].(map[string]interface{})
+		if !ok {
+			res[i] = ""
+			continue
+		}
 		value := body["name"].(string)
 		color := colorMap[body["color"].(string)]
 		res[i] = lipgloss.NewStyle().

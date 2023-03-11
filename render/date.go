@@ -38,7 +38,12 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 	}
 	// render into result
 	for i, field := range fields {
-		date := field.(map[string]interface{})["date"].(map[string]interface{})["start"].(string)
+		f, ok := field.(map[string]interface{})["date"].(map[string]interface{})
+		if !ok {
+			res[i] = ""
+			continue
+		}
+		date := f["start"].(string)
 		t, err := time.ParseInLocation("2006-01-02", date[:10], loc)
 		if err != nil {
 			return res, fmt.Errorf(errType.Internal, config.Name, err.Error())
