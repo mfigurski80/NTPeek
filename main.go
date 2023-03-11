@@ -62,8 +62,6 @@ func main() {
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 
-		fmt.Println(filterStrings)
-
 		params := query.QueryParamArgument{*sortString, *filterStrings}
 		res, err := query.QueryNotionEntryDB(AccessArgument, params)
 		exitOnError(err)

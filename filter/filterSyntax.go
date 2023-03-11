@@ -71,8 +71,9 @@ func (f *filter) Render() (string, error) {
 	propertyName := string(*f.Field)
 	// get typename
 	typeName := fieldTypeString(f.Type.Type)
+	ntTypeName := typeName
 	if t, ok := typeNameOverride[f.Type.Type]; ok {
-		typeName = fieldTypeString(t)
+		ntTypeName = fieldTypeString(t)
 	}
 	// get condition: in-order check value, type, op
 	condition := ""
@@ -95,7 +96,7 @@ func (f *filter) Render() (string, error) {
 	} else {
 		return "", fmt.Errorf(errType.InvalidKeyword, "Operator", f.Operator.String())
 	}
-	return fmt.Sprintf(template, propertyName, typeName, condition), nil
+	return fmt.Sprintf(template, propertyName, ntTypeName, condition), nil
 }
 
 var typeNameOverride = map[string]string{
