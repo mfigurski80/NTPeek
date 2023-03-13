@@ -68,10 +68,7 @@ func getRenderedFields(
 	for i, name := range fieldNames {
 		fieldVals[i] = make([]interface{}, len(tasks))
 		if tasks[0][name] == nil {
-			if name == "_p" {
-				fieldVals[i] = make([]interface{}, 1)
-				fieldVals[i][0] = map[string]interface{}{"type": "_p"}
-			} else {
+			if name != "_p" {
 				globalErr = fmt.Errorf(errType.FieldNotFound, name, maps.Keys(tasks[0]))
 				fieldVals[i] = make([]interface{}, len(tasks))
 			}

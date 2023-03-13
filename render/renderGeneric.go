@@ -22,6 +22,7 @@ var fRenderFuncs = map[string]renderRowFunction{
 	"multi_select": renderMultiSelect,
 	"date":         renderDate,
 	"checkbox":     renderCheckbox,
+	"_id":          renderId,
 	"_p":           renderPriority,
 }
 
@@ -33,12 +34,20 @@ func renderNil(vals []interface{}, _ renderRowConfig) ([]string, error) {
 func getGenericRenderFunc(field []interface{}, name string) (renderRowFunction, error) {
 	fVals, ok := field[0].(map[string]interface{})
 	if !ok {
+		if f, ok := fRenderFuncs[name]; ok {
+			return f, nil
+		}
 		return renderNil, nil
 	}
 	gMod := withGlobalModifiers
 	f, ok := fRenderFuncs[fVals["type"].(string)]
 	if !ok {
-		return renderNil, fmt.Errorf(errType.UnsupportedType, name, fVals["type"].(string), maps.Keys(fRenderFuncs))
+		return renderNil, fmt.Errorf(
+			errType.UnsupportedType,
+			name,
+			fVals["type"].(string),
+			maps.Keys(fRenderFuncs),
+		)
 	}
 	return gMod(f), nil
 }
