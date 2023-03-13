@@ -53,7 +53,7 @@ Although the field name specified in a tag usually has to actually exist on your
 
 - `%_id%` will render the notion page id for the element
 
-- `%_pr%` will render an exclamation point if assigned task priority is high (see the priority flag). Still WIP
+- `%_p%` will render an exclamation point if assigned task priority is high (see the priority flag), and a space otherwise
 
 ### Sorting
 
