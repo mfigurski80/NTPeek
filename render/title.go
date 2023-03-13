@@ -21,11 +21,11 @@ func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error)
 		res[i] = parseNotionRichText(f)
 		switch config.Priority[i] {
 		case priority.HI:
-			res[i] = titleStyle[priority.HI].Render("!" + res[i])
+			res[i] = titleStyle[priority.HI].Render(res[i])
 		case priority.MED:
-			res[i] = " " + res[i]
+			res[i] = res[i]
 		case priority.LO:
-			res[i] = titleStyle[priority.LO].Render(" " + res[i])
+			res[i] = titleStyle[priority.LO].Render(res[i])
 		}
 	}
 	// TODO: support modifiers?

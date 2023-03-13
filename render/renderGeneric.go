@@ -22,6 +22,7 @@ var fRenderFuncs = map[string]renderRowFunction{
 	"multi_select": renderMultiSelect,
 	"date":         renderDate,
 	"checkbox":     renderCheckbox,
+	"_p":           renderPriority,
 }
 
 func renderNil(vals []interface{}, _ renderRowConfig) ([]string, error) {
