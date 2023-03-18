@@ -16,6 +16,7 @@ type QueryAccessArgument struct {
 
 type QueryParamArgument struct {
 	Sort   SortString
+	Limit  LimitNumber
 	Filter []filter.FilterString
 }
 
@@ -25,11 +26,12 @@ func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) ([
 	if err != nil {
 		return nil, err
 	}
+	limit := param.Limit
 	filterDirective, err := filter.ParseFilter(param.Filter)
 	if err != nil {
 		return nil, err
 	}
-	res, err := doNotionDBRequest(access, sortDirective, filterDirective)
+	res, err := doNotionDBRequest(access, sortDirective, limit, filterDirective)
 	if err != nil {
 		return nil, err
 	}

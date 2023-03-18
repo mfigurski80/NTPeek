@@ -45,6 +45,7 @@ func main() {
 	// setup global flags
 	selectRenderString := render.SetupSelectFlag(allFlagSets)
 	sortString := query.SetupSortFlag(allFlagSets)
+	limitArg := query.SetupLimitFlag(allFlagSets)
 	filterStrings := filter.SetupFilterFlag(allFlagSets)
 	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
@@ -62,7 +63,7 @@ func main() {
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 
-		params := query.QueryParamArgument{*sortString, *filterStrings}
+		params := query.QueryParamArgument{*sortString, *limitArg, *filterStrings}
 		res, err := query.QueryNotionEntryDB(AccessArgument, params)
 		exitOnError(err)
 

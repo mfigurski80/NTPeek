@@ -107,6 +107,9 @@ The priority assignment is entirely based on tags. The following flags are used 
 
 - `--priority-default` : default priority to assign when no distinguishing tags are present
 
+### Limits
+
+One can specify a limit to the number of elements that will be returned with the `--limit` flag. For example, `nta --limit=4` will return just 4 elements.
 
 ## Building from Source
 

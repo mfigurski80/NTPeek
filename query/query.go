@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-func doNotionDBRequest(access QueryAccessArgument, sort string, filter string) (*http.Response, error) {
+func doNotionDBRequest(access QueryAccessArgument, sort string, limit uint, filter string) (*http.Response, error) {
 	// sort and filter should be FORMATTED JSON
 	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", access.DBId)
 
 	payload := strings.NewReader(`{
-		"page_size": 100,
+		"page_size": ` + fmt.Sprintf("%d", limit) + `,
 		"filter": ` + filter + `,
 		"sorts": ` + sort + `
 	}`)

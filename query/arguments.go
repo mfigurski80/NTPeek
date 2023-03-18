@@ -14,3 +14,15 @@ func SetupSortFlag(flagsets []*flag.FlagSet) *SortString {
 	}
 	return &sort
 }
+
+/// `--limit` flag lets users limit number of items displayed
+
+type LimitNumber = uint
+
+func SetupLimitFlag(flagsets []*flag.FlagSet) *LimitNumber {
+	var limit uint
+	for _, fs := range flagsets {
+		fs.UintVar(&limit, "limit", 100, "Limit number of items displayed")
+	}
+	return &limit
+}
