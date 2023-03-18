@@ -10,7 +10,7 @@ import (
 type renderRowConfig struct {
 	Name      string
 	Modifiers []string
-	Priority  []priority.Priority
+	Priority  *[]priority.Priority
 }
 
 type renderRowFunction func([]interface{}, renderRowConfig) ([]string, error)

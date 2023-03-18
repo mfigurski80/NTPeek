@@ -19,7 +19,7 @@ func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error)
 			continue
 		}
 		res[i] = parseNotionRichText(f)
-		switch config.Priority[i] {
+		switch (*config.Priority)[i] {
 		case priority.HI:
 			res[i] = titleStyle[priority.HI].Render(res[i])
 		case priority.MED:

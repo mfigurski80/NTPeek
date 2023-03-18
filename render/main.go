@@ -88,7 +88,7 @@ func getRenderedFields(
 			continue
 		}
 		rendered[i], err = renderFunc(fieldVals[i], renderRowConfig{
-			name, fieldModifiers[i], priorities,
+			name, fieldModifiers[i], &priorities,
 		})
 		if err != nil {
 			globalErr = err
