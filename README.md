@@ -47,6 +47,8 @@ Type specific modifiers, currently, include:
 
 - date accepts `:relative`, `:simple`, and `:full` for different representations of date values
 
+- id accepts `:short`, which will show just the first 4 characters of the id (for reference)
+
 #### Special Select Fields
 
 Although the field name specified in a tag usually has to actually exist on your Notion DB, there are some special fields that Notion or the tool provides. These are listed here:

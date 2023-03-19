@@ -5,9 +5,9 @@ func renderCheckbox(fields []interface{}, _ renderRowConfig) ([]string, error) {
 	for i, field := range fields {
 		value := field.(map[string]interface{})["checkbox"].(bool)
 		if value {
-			res[i] = "✔️"
+			res[i] = "[x]"
 		} else {
-			res[i] = "❌"
+			res[i] = "[ ]"
 		}
 	}
 	return res, nil
