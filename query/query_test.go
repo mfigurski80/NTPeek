@@ -1,6 +1,7 @@
 package query
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -25,18 +26,18 @@ var _ = Describe("function `doNotionDBRequest`", func() {
 	queryAccessArg := QueryAccessArgument{"A", "B"}
 
 	lastRequest := &http.Request{}
-	httpClient = &mockClient{ // mock global client
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			lastRequest = req
-			return &http.Response{
-				StatusCode: 200,
-				Body:       nil,
-			}, nil
-		},
-	}
 
 	BeforeEach(func() {
 		lastRequest = &http.Request{}
+		httpClient = &mockClient{ // mock global client
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				lastRequest = req
+				return &http.Response{
+					StatusCode: 200,
+					Body:       nil,
+				}, nil
+			},
+		}
 	})
 
 	It("should send a request with the correct query", func() {
@@ -60,4 +61,18 @@ var _ = Describe("function `doNotionDBRequest`", func() {
 		Expect(b).To(ContainSubstring(`"filter": ` + filter))
 	})
 
+	Context("when the request fails", func() {
+		BeforeEach(func() {
+			httpClient = &mockClient{ // mock global client
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					return nil, fmt.Errorf("some error")
+				},
+			}
+		})
+
+		It("should return an error", func() {
+			_, err := doNotionDBRequest(queryAccessArg, "", 100, "")
+			Expect(err).ToNot(BeNil())
+		})
+	})
 })
