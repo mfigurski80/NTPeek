@@ -7,7 +7,7 @@ import (
 )
 
 func doNotionDBRequest(access QueryAccessArgument, sort string, limit uint, filter string) (*http.Response, error) {
-	// sort and filter should be FORMATTED JSON
+	// sort and filter should be FORMATTED JSON now
 	url := fmt.Sprintf("https://api.notion.com/v1/databases/%s/query", access.DBId)
 
 	payload := strings.NewReader(`{
@@ -20,5 +20,5 @@ func doNotionDBRequest(access QueryAccessArgument, sort string, limit uint, filt
 	req.Header.Add("Notion-Version", "2022-06-28")
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", access.Secret))
-	return http.DefaultClient.Do(req)
+	return httpClient.Do(req)
 }

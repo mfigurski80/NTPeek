@@ -95,7 +95,7 @@ func requireAccess(a query.QueryAccessArgument) {
 }
 
 func showUsage() {
-	fmt.Println("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n")
+	fmt.Printf("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n\n")
 	fmt.Println("Commands:")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
