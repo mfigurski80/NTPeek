@@ -20,7 +20,8 @@ func formatSortDirective(sortString SortString) (string, error) {
 			default:
 				return "", fmt.Errorf(errType.InvalidSortDirection, sp[1])
 			}
-		} else if len(sp) > 2 {
+		}
+		if len(sp) > 2 {
 			return "", fmt.Errorf(errType.InvalidSortSyntax, prop)
 		}
 		if i != 0 {
