@@ -102,7 +102,7 @@ var _ = Describe("`QueryNotionEntryDB` function", func() {
 			Expect(err).To(BeNil())
 			body, err := ioutil.ReadAll(lastRequest.Body)
 			Expect(err).To(BeNil())
-			Expect(string(body)).To(ContainSubstring(`"filter": {"and": [{"property": "Due", "date": {"after": 2021-01-01}}, {"or": [{"property": "Done", "checkbox": {"equals": false}}, {"property": "Due", "date": {"is_empty": true}}]}]}`))
+			Expect(string(body)).To(ContainSubstring(`"filter": {"and": [{"property": "Due", "date": {"after": "2021-01-01"}}, {"or": [{"property": "Done", "checkbox": {"equals": false}}, {"property": "Due", "date": {"is_empty": true}}]}]}`))
 		})
 
 		It("correctly limits with the page size field", func() {
