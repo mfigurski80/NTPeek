@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("FilterSyntax", func() {
+var _ = Describe("Simple Filter Syntax", func() {
 
 	Context("describing text field", func() {
 		It("should support equality", func() {
@@ -325,6 +325,14 @@ var _ = Describe("FilterSyntax", func() {
 			Expect(err).To(BeNil())
 			Expect(r1).To(Equal(r2))
 		})
+	})
+
+	It("provides help text for bad types", func() {
+		Skip("feature is not implemented")
+		_, err := f.ParseFilter([]string{`NAME:badtype = "VAL"`})
+		Expect(err).ToNot(BeNil())
+		Expect(err.Error()).To(ContainSubstring("badtype"))
+		Expect(err.Error()).To(ContainSubstring("supported types"))
 	})
 
 })
