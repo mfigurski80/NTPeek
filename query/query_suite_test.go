@@ -61,6 +61,7 @@ var _ = Describe("`QueryNotionEntryDB` function", func() {
 				queryAccessArg, q.QueryParamArgument{"", 100, []string{}})
 			Expect(err).To(BeNil())
 			Expect(res).ToNot(BeNil())
+			Expect(res).To(HaveLen(0))
 		})
 
 		It("should make correct request", func() {

@@ -63,12 +63,18 @@ func main() {
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 
-		params := query.QueryParamArgument{*sortString, *limitArg, *filterStrings}
+		params := query.QueryParamArgument{
+			Sort:   *sortString,
+			Limit:  *limitArg,
+			Filter: *filterStrings,
+		}
 		res, err := query.QueryNotionEntryDB(AccessArgument, params)
 		exitOnError(err)
 
 		priorityConfig := buildPriorityConfig()
-		render.RenderTasks(res, *selectRenderString, priorityConfig)
+		fin, err := render.RenderTasks(res, *selectRenderString, priorityConfig)
+		fmt.Println(fin)
+		exitOnError(err)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()
