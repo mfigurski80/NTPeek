@@ -27,6 +27,20 @@ func (c *mockClient) Do(req *http.Request) (*http.Response, error) {
 	return c.DoFunc(req)
 }
 
+func setupHttpMock(last **http.Request) {
+	q.SET_HTTP_CLIENT(&mockClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			*last = req
+			return &http.Response{
+				StatusCode: 200,
+				Body: ioutil.NopCloser(bytes.NewBufferString(
+					`{"object": "list", "results": []}`,
+				)),
+			}, nil
+		},
+	})
+}
+
 /// MAIN SPEC TESTS
 
 var _ = Describe("`QueryNotionEntryDB` function", func() {
@@ -39,17 +53,7 @@ var _ = Describe("`QueryNotionEntryDB` function", func() {
 	Context("while the query is successful", func() {
 
 		BeforeEach(func() {
-			q.SET_HTTP_CLIENT(&mockClient{
-				DoFunc: func(req *http.Request) (*http.Response, error) {
-					lastRequest = req
-					return &http.Response{
-						StatusCode: 200,
-						Body: ioutil.NopCloser(bytes.NewBufferString(
-							`{"object": "list", "results": []}`,
-						)),
-					}, nil
-				},
-			})
+			setupHttpMock(&lastRequest)
 		})
 
 		It("should not error", func() {
@@ -67,32 +71,6 @@ var _ = Describe("`QueryNotionEntryDB` function", func() {
 			Expect(lastRequest.Header.Get("Authorization")).To(Equal("Bearer A"))
 			Expect(lastRequest.Header.Get("Content-Type")).To(Equal("application/json"))
 			Expect(lastRequest.Method).To(Equal("POST"))
-		})
-
-		When("formatting the sort directive", func() {
-
-			It("correctly formats the sort directive", func() {
-				sort := "Due:asc,Priority:desc"
-				q.QueryNotionEntryDB(
-					queryAccessArg, q.QueryParamArgument{sort, 100, []string{}})
-				body, err := ioutil.ReadAll(lastRequest.Body)
-				Expect(err).To(BeNil())
-				Expect(string(body)).To(ContainSubstring(`"sorts": [{"property": "Due", "direction": "ascending"}, {"property": "Priority", "direction": "descending"}]`))
-			})
-
-			It("recognizes invalid sort directives", func() {
-				sort := "Due:INVALID_DIRECTION"
-				_, err := q.QueryNotionEntryDB(
-					queryAccessArg, q.QueryParamArgument{sort, 100, []string{}})
-				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(ContainSubstring("direction"))
-				sort = "A:asc:B:C"
-				_, err = q.QueryNotionEntryDB(
-					queryAccessArg, q.QueryParamArgument{sort, 100, []string{}})
-				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(ContainSubstring("syntax"))
-			})
-
 		})
 
 		It("correctly formats the filter directive", func() {

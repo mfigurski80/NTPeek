@@ -18,8 +18,8 @@ import (
 //go:embed build/auth_token.txt
 var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
-	notionAuthorizationSecret,
-	"",
+	Secret: notionAuthorizationSecret,
+	DBId:   "",
 }
 
 //go:generate bash build/get_version.sh
