@@ -19,7 +19,7 @@ func TestRender(t *testing.T) {
 /// MAIN SPEC TESTS
 
 var _ = Describe("`RenderTasks` function", func() {
-	var defaultTask types.NotionEntry
+	var defaultTasks []types.NotionEntry
 	var defaultPriorityConfig = priority.PriorityConfig{
 		Field:   "MULTI_SELECT FIELD",
 		Map:     priority.TagsPriorityMap{},
@@ -27,13 +27,17 @@ var _ = Describe("`RenderTasks` function", func() {
 	}
 
 	BeforeEach(func() {
-		err := json.Unmarshal([]byte(ntResponse), &defaultTask)
+		t := types.NotionEntry{}
+		err := json.Unmarshal([]byte(ntResponse), &t)
 		Expect(err).To(BeNil())
+		defaultTasks = []types.NotionEntry{t}
 	})
 
 	Context("with a valid template", func() {
-		It("should accept a valid template", func() {
-			r.RenderTasks([]types.NotionEntry{defaultTask}, "...", defaultPriorityConfig)
+		It("should render a simple literal template", func() {
+			GinkgoT().Log(defaultTasks)
+			Expect(r.RenderTasks(defaultTasks, "xxx", defaultPriorityConfig)).
+				Should(Equal("xxx\n"))
 		})
 	})
 

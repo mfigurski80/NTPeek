@@ -73,7 +73,7 @@ func main() {
 
 		priorityConfig := buildPriorityConfig()
 		fin, err := render.RenderTasks(res, *selectRenderString, priorityConfig)
-		fmt.Println(fin)
+		fmt.Print(fin)
 		exitOnError(err)
 	default:
 		fmt.Println("nt: unknown command", os.Args)

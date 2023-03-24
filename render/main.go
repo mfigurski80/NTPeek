@@ -28,7 +28,10 @@ func RenderTasks(
 		fmt.Println(err)
 	}
 	// place field data into render string
-	formatString := selectRenderRegex.ReplaceAllString(string(selectRender), "%s")
+	if len(renderedFields) == 0 {
+		return strings.Repeat(selectRender+"\n", len(tasks)), err
+	}
+	formatString := selectRenderRegex.ReplaceAllString(selectRender, "%s")
 	ret := sprintfList(formatString+"\n", renderedFields)
 	return ret, err
 }
