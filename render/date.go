@@ -92,7 +92,7 @@ var stringifyDateMap = map[stringifyDateOption](func(time.Time) string){
 		return fmt.Sprint(-diff) + " days ago"
 	},
 	_SIMPLE: func(t time.Time) string {
-		return t.Format("Jan 02")
+		return t.Format("Jan 2")
 	},
 	_FULL: func(t time.Time) string {
 		return t.Format("2006-01-02")

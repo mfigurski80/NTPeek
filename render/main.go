@@ -24,9 +24,6 @@ func RenderTasks(
 	fields := listFields(selectRender)
 	// render field data
 	renderedFields, err := getRenderedFields(tasks, fields, priorityConfig)
-	if err != nil {
-		fmt.Println(err)
-	}
 	// place field data into render string
 	if len(renderedFields) == 0 {
 		return strings.Repeat(selectRender+"\n", len(tasks)), err
@@ -36,7 +33,7 @@ func RenderTasks(
 	return ret, err
 }
 
-var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9_\-:]+)%`)
+var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9_\-\ :]+)%`)
 
 func listFields(selectRender string) []string {
 	// find fields needed for render
