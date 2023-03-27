@@ -18,8 +18,8 @@ import (
 //go:embed build/auth_token.txt
 var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
-	notionAuthorizationSecret,
-	"",
+	Secret: notionAuthorizationSecret,
+	DBId:   "",
 }
 
 //go:generate bash build/get_version.sh
@@ -63,12 +63,18 @@ func main() {
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
 
-		params := query.QueryParamArgument{*sortString, *limitArg, *filterStrings}
+		params := query.QueryParamArgument{
+			Sort:   *sortString,
+			Limit:  *limitArg,
+			Filter: *filterStrings,
+		}
 		res, err := query.QueryNotionEntryDB(AccessArgument, params)
 		exitOnError(err)
 
 		priorityConfig := buildPriorityConfig()
-		render.RenderTasks(res, *selectRenderString, priorityConfig)
+		fin, err := render.RenderTasks(res, *selectRenderString, priorityConfig)
+		fmt.Print(fin)
+		exitOnError(err)
 	default:
 		fmt.Println("nt: unknown command", os.Args)
 		fmt.Println()
@@ -95,7 +101,7 @@ func requireAccess(a query.QueryAccessArgument) {
 }
 
 func showUsage() {
-	fmt.Println("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n")
+	fmt.Printf("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n\n")
 	fmt.Println("Commands:")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")

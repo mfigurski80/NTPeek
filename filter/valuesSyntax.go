@@ -7,6 +7,8 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
+var timeProvider = time.Now
+
 /// Generic Value union type
 /// MAKE SURE TO ACTUALLY DO UNION IN PARSER
 
@@ -77,7 +79,7 @@ func (v dateValue) String() string {
 	return fmt.Sprintf("%04d/%02d/%02d", v.Year, v.Month, v.Day)
 }
 func (v dateValue) Render() string {
-	return fmt.Sprintf("%04d-%02d-%02d", v.Year, v.Month, v.Day)
+	return fmt.Sprintf(`"%04d-%02d-%02d"`, v.Year, v.Month, v.Day)
 }
 
 // RelativeDate
@@ -95,7 +97,10 @@ func (r relativeDateValue) Render() string {
 	if r.Direction == "NEXT" {
 		dir = 1
 	}
-	t := time.Now()
+	if r.Amount == 0 {
+		r.Amount = 1
+	}
+	t := timeProvider()
 	switch r.Unit {
 	case "DAY":
 		t = t.AddDate(0, 0, dir*r.Amount)

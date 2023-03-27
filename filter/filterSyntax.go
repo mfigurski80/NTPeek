@@ -50,7 +50,7 @@ const (
 // Filter Operator
 
 type operator struct {
-	Not bool   `@("NOT"|"!" (?= "="|"CONTAINS"))?`
+	Not bool   `@("NOT"|"!")?`
 	Op  string `@("="|("<" "="?)|(">" "="?)|"CONTAINS"|"STARTS_WITH"|"ENDS_WITH")`
 }
 
@@ -63,17 +63,28 @@ func (o *operator) String() string {
 
 // Filter Value: defined in valueSyntax.go
 
+var negatableOperators = map[string]struct{}{
+	"=":        {},
+	"CONTAINS": {},
+}
+
 /// FILTER RENDER
 
 func (f *filter) Render() (string, error) {
 	template := `{"property": "%s", "%s": {%s}}`
 	// get property name
 	propertyName := string(*f.Field)
-	// get typename
+	// get notion typename
 	typeName := fieldTypeString(f.Type.Type)
 	ntTypeName := typeName
 	if t, ok := typeNameOverride[f.Type.Type]; ok {
 		ntTypeName = fieldTypeString(t)
+	}
+	// check if valid operator
+	if f.Operator.Not {
+		if _, ok := negatableOperators[f.Operator.Op]; !ok {
+			return "", fmt.Errorf(errType.NonNegatableOp, f.Operator.Op)
+		}
 	}
 	// get condition: in-order check value, type, op
 	condition := ""
@@ -86,7 +97,11 @@ func (f *filter) Render() (string, error) {
 	} else if c, ok := defaultOperationKeyword[f.Operator.String()]; ok {
 		// default: ensure type supports op, type matches value
 		if _, ok := supportedTypeOperations[typeName][f.Operator.String()]; !ok {
+			// if not, list supported ops
 			k := maps.Keys(supportedTypeOperations[typeName])
+			if ops, ok := typeOperationKeyword[typeName]; ok {
+				k = append(k, maps.Keys(ops)...)
+			}
 			return "", fmt.Errorf(errType.TypeOpMismatch, typeName, f.Operator.String(), k)
 		}
 		if matches := valueMatchesType(f.Value, typeName); !matches {
@@ -104,7 +119,7 @@ var typeNameOverride = map[string]string{
 	"text":        "title", // TODO: could also be rich_text?
 }
 
-/// DEFINITIONS for ssigning notion filters to syntax
+/// DEFINITIONS for assigning notion filters to syntax
 
 var operationValue = map[string]string{
 	"= EMPTY":  `"is_empty": true`,
@@ -113,7 +128,6 @@ var operationValue = map[string]string{
 
 var typeOperationKeyword = map[fieldTypeString]map[string]string{
 	Date: {
-		"!=": "",
 		">":  "after",
 		">=": "on_or_after",
 		"<":  "before",
@@ -123,7 +137,7 @@ var typeOperationKeyword = map[fieldTypeString]map[string]string{
 
 // given need default operation keyword, ensure type supports it
 var supportedTypeOperations = map[fieldTypeString]map[string]struct{}{
-	Date:        {}, // no additional ops over typeOperationKeyword
+	Date:        {"=": {}}, // additional ops over typeOperationKeyword
 	Checkbox:    {"=": {}, "!=": {}},
 	Select:      {"=": {}, "!=": {}},
 	Number:      {"=": {}, "!=": {}, ">": {}, ">=": {}, "<": {}, "<=": {}},

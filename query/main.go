@@ -20,7 +20,10 @@ type QueryParamArgument struct {
 	Filter []filter.FilterString
 }
 
-func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) ([]types.NotionEntry, error) {
+func QueryNotionEntryDB(
+	access QueryAccessArgument,
+	param QueryParamArgument,
+) ([]types.NotionEntry, error) {
 	// do request
 	sortDirective, err := formatSortDirective(param.Sort)
 	if err != nil {
@@ -41,10 +44,16 @@ func QueryNotionEntryDB(access QueryAccessArgument, param QueryParamArgument) ([
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 	if result["object"] == "error" {
-		return nil, fmt.Errorf("Returned Error [%v]: %s\n", result["status"], result["message"])
+		return nil, fmt.Errorf(
+			"Returned Error [%v]: %s\n",
+			result["status"], result["message"],
+		)
 	}
 
-	var entries []types.NotionEntry = make([]types.NotionEntry, len(result["results"].([]interface{})))
+	var entries []types.NotionEntry = make(
+		[]types.NotionEntry,
+		len(result["results"].([]interface{})),
+	)
 	for i, entry := range result["results"].([]interface{}) {
 		entries[i] = entry.(map[string]interface{})["properties"].(map[string]interface{})
 		entries[i]["_id"] = entry.(map[string]interface{})["id"].(string)

@@ -23,7 +23,7 @@ func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error)
 		case priority.HI:
 			res[i] = titleStyle[priority.HI].Render(res[i])
 		case priority.MED:
-			res[i] = res[i]
+			// res[i] = res[i]
 		case priority.LO:
 			res[i] = titleStyle[priority.LO].Render(res[i])
 		}

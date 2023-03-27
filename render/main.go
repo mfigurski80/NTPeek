@@ -18,22 +18,22 @@ func RenderTasks(
 	tasks []types.NotionEntry,
 	selectRender string,
 	priorityConfig priority.PriorityConfig,
-) {
+) (string, error) {
 	lipgloss.SetColorProfile(termenv.TrueColor)
 	// find fields needed for render
 	fields := listFields(selectRender)
 	// render field data
 	renderedFields, err := getRenderedFields(tasks, fields, priorityConfig)
-	if err != nil {
-		fmt.Println(err)
-	}
 	// place field data into render string
-	formatString := selectRenderRegex.ReplaceAllString(string(selectRender), "%s")
+	if len(renderedFields) == 0 {
+		return strings.Repeat(selectRender+"\n", len(tasks)), err
+	}
+	formatString := selectRenderRegex.ReplaceAllString(selectRender, "%s")
 	ret := sprintfList(formatString+"\n", renderedFields)
-	fmt.Printf(ret)
+	return ret, err
 }
 
-var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9_\-:]+)%`)
+var selectRenderRegex = regexp.MustCompile(`%([a-zA-Z0-9_\-\ :]+)%`)
 
 func listFields(selectRender string) []string {
 	// find fields needed for render
@@ -100,6 +100,9 @@ func getRenderedFields(
 
 func sprintfList(format string, list [][]string) string {
 	result := ""
+	if len(list) == 0 {
+		return result
+	}
 	for i := range list[0] {
 		row := make([]interface{}, len(list))
 		for j, column := range list {
