@@ -16,10 +16,14 @@ import (
 
 //go:generate bash build/get_auth_token.sh
 //go:embed build/auth_token.txt
-var notionAuthorizationSecret string
+var defaultAuthorizationSecret string
+
+//go:generate bash build/get_db_id.sh
+//go:embed build/db_id.txt
+var defaultDBId string
 var AccessArgument = query.QueryAccessArgument{
-	Secret: notionAuthorizationSecret,
-	DBId:   "",
+	Secret: defaultAuthorizationSecret,
+	DBId:   defaultDBId,
 }
 
 //go:generate bash build/get_version.sh
