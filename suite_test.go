@@ -5,11 +5,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
+	"github.com/tommy351/goldga"
 )
 
 func TestNTPeek(t *testing.T) {
@@ -19,13 +21,18 @@ func TestNTPeek(t *testing.T) {
 
 /// Integration Tests for `NTPeek`
 
-var _ = Describe("NTPeek Integration", func() {
+var _ = Describe("Integration test", func() {
 
 	BeforeEach(func() {
-		if _, err := os.Stat("./nt"); err != nil {
-			err := exec.Command("go", "generate", "&&", "go", "build", "-o", "nt", ".").Run()
+		inf, err := os.Stat("./nt")
+		if inf == nil || err != nil {
+			out, err := exec.Command("go", "generate").CombinedOutput()
 			if err != nil {
-				panic(fmt.Sprintf("failed to build `nt` binary, required for integration testing: %s", err))
+				panic(fmt.Sprintf("failed to generate `nt` data, required for integration testing: %s\n%s", err, string(out)))
+			}
+			out, err = exec.Command("go", "build", "-o", "./nt").CombinedOutput()
+			if err != nil {
+				panic(fmt.Sprintf("failed to build `nt` binary, required for integration testing: %s\n%s", err, string(out)))
 			}
 		}
 	})
@@ -34,9 +41,9 @@ var _ = Describe("NTPeek Integration", func() {
 		It("should return version information", func() {
 			toRun := []string{"./nt", "v"}
 			output, code := captureCrasher(toRun)
-			Expect(code).To(Equal(0), "should exit with code 0")
 			Expect(output).To(ContainSubstring("version"))
 			Expect(output).To(MatchRegexp(`[0-9a-f]{40}`), "should contain a git commit hash")
+			Expect(code).To(Equal(0), "should exit with code 0")
 		})
 	})
 
@@ -45,39 +52,78 @@ var _ = Describe("NTPeek Integration", func() {
 			Skip("fix!")
 			toRun := []string{"./nt", "h"}
 			output, code := captureCrasher(toRun)
-			Expect(code).To(Equal(0), "should exit with code 0")
 			Expect(output).To(ContainSubstring("Usage"))
+			Expect(code).To(Equal(0), "should exit with code 0")
 		})
 		It("should match snapshot", func() {
-			Skip("fix! implement snapshot!")
+			Skip("fix!")
 			toRun := []string{"./nt", "h"}
-			_, code := captureCrasher(toRun)
+			output, code := captureCrasher(toRun)
 			Expect(code).To(Equal(0), "should exit with code 0")
+			Expect(output).To(goldga.Match())
 		})
 	})
 
 	Context("when running `nt p`", func() {
 		// note these credentials are burned, for test db
-		const TEST_DB_ID = "979bf78281914ca5895555168b2f7396u"
+		const TEST_DB_ID = "979bf78281914ca5895555168b2f7396"
 		const TEST_ACCESS = "secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+		// https://www.notion.so/mikof/979bf78281914ca5895555168b2f7396?v=2a121bd645e5476fb0c6a0fe3d44366d
 
+		When("no db id or token are provided", func() {
+			It("should fail with error message", func() {
+				toRun := []string{"./nt", "p"}
+				output, code := captureCrasher(toRun)
+				Expect(output).To(ContainSubstring("Secret"))
+				Expect(output).To(ContainSubstring("Database"))
+				Expect(code).To(Equal(1))
+			})
+			It("should match snapshot", func() {
+				toRun := []string{"./nt", "p"}
+				output, _ := captureCrasher(toRun)
+				Expect(output).To(goldga.Match())
+			})
+		})
 		It("should return a list of items", func() {
-			Skip("fix!")
 			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID, "p"}
 			output, code := captureCrasher(toRun)
+			Expect(output).ToNot(ContainSubstring("Usage"))
+			Expect(output).ToNot(ContainSubstring("Err"))
+			spl := strings.Split(output, "\n")
+			Expect(len(spl) > 2).To(BeTrue(), "should have at least 3 items")
 			Expect(code).To(Equal(0))
-			Expect(output).To(ContainSubstring("NTPeek"))
+		})
+		It("should match snapshot", func() {
+			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID, "p"}
+			output, _ := captureCrasher(toRun)
+			Expect(output).To(goldga.Match())
 		})
 	})
 
-	Context("when running unknown commands", func() {
-		It("should return an error", func() {
+	Context("when running malformed commands", func() {
+		It("errors on no arguments", func() {
+			toRun := []string{"./nt"}
+			output, code := captureCrasher(toRun)
+			Expect(output).To(ContainSubstring("argument"))
+			Expect(code).To(Equal(1))
+		})
+		It("matches no args snapshot", func() {
+			toRun := []string{"./nt"}
+			output, _ := captureCrasher(toRun)
+			Expect(output).To(goldga.Match())
+		})
+		It("errors on unknown command", func() {
 			toRun := []string{"./nt", "unknown"}
 			output, code := captureCrasher(toRun)
-			Expect(code).To(Equal(1))
 			Expect(output).To(ContainSubstring("unknown command"))
-			Expect(output).To(ContainSubstring("./nt unknown"))
+			Expect(output).To(ContainSubstring("./nt unknown"), "should show passed args")
 			Expect(output).To(ContainSubstring("Usage"))
+			Expect(code).To(Equal(1))
+		})
+		It("matches unknown command snapshot", func() {
+			toRun := []string{"./nt", "unknown"}
+			output, _ := captureCrasher(toRun)
+			Expect(output).To(goldga.Match())
 		})
 	})
 

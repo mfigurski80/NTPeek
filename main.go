@@ -36,6 +36,8 @@ func main() {
 	}
 
 	// parse access
+	origArgs := make([]string, len(os.Args))
+	copy(origArgs, os.Args)
 	parseAccessArgument()
 
 	// setup command flag sets
@@ -50,7 +52,6 @@ func main() {
 	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
 	// check if just peeking
-	origArgs := os.Args
 	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") || os.Args[1] == "h" {
 		os.Args = append([]string{os.Args[0], "p"}, os.Args[1:]...)
 	}
@@ -86,7 +87,7 @@ func main() {
 
 func parseAccessArgument() {
 	// try parse auth secret, db id, in that order
-	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
+	if len(os.Args[1]) >= 50 && strings.HasPrefix(os.Args[1], "secret_") {
 		AccessArgument.Secret = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
