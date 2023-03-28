@@ -14,16 +14,16 @@ import (
 	"github.com/mfigurski80/NTPeek/render"
 )
 
-//go:generate bash build/get_auth_token.sh
-//go:embed build/auth_token.txt
+//go:generate bash .build/get_auth_token.sh
+//go:embed .build/auth_token.txt
 var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
 	Secret: notionAuthorizationSecret,
 	DBId:   "",
 }
 
-//go:generate bash build/get_version.sh
-//go:embed build/version.txt
+//go:generate bash .build/get_version.sh
+//go:embed .build/version.txt
 var Version string
 
 func main() {
