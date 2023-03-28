@@ -14,16 +14,16 @@ import (
 	"github.com/mfigurski80/NTPeek/render"
 )
 
-//go:generate bash build/get_auth_token.sh
-//go:embed build/auth_token.txt
+//go:generate bash .build/get_auth_token.sh
+//go:embed .build/auth_token.txt
 var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
 	Secret: notionAuthorizationSecret,
 	DBId:   "",
 }
 
-//go:generate bash build/get_version.sh
-//go:embed build/version.txt
+//go:generate bash .build/get_version.sh
+//go:embed .build/version.txt
 var Version string
 
 func main() {
@@ -36,6 +36,8 @@ func main() {
 	}
 
 	// parse access
+	origArgs := make([]string, len(os.Args))
+	copy(origArgs, os.Args)
 	parseAccessArgument()
 
 	// setup command flag sets
@@ -76,15 +78,16 @@ func main() {
 		fmt.Print(fin)
 		exitOnError(err)
 	default:
-		fmt.Println("nt: unknown command", os.Args)
+		fmt.Println("nt: unknown command", origArgs)
 		fmt.Println()
 		showUsage()
+		os.Exit(1)
 	}
 }
 
 func parseAccessArgument() {
 	// try parse auth secret, db id, in that order
-	if len(os.Args[1]) == 50 && strings.HasPrefix(os.Args[1], "secret_") {
+	if len(os.Args[1]) >= 50 && strings.HasPrefix(os.Args[1], "secret_") {
 		AccessArgument.Secret = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
@@ -118,4 +121,8 @@ func exitOnError(err error) {
 			Render(err.Error()),
 	)
 	os.Exit(1)
+}
+
+func Main() {
+	main()
 }

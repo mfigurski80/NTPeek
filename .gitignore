@@ -1,4 +1,4 @@
 .env
 nt
-build/*.txt
+.build/*.txt
 *.gif
