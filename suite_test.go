@@ -23,9 +23,9 @@ var _ = Describe("NTPeek Integration", func() {
 
 	BeforeEach(func() {
 		if _, err := os.Stat("./nt"); err != nil {
-			err := exec.Command("go", "build", "-o", "nt", ".").Run()
+			err := exec.Command("go", "generate", "&&", "go", "build", "-o", "nt", ".").Run()
 			if err != nil {
-				panic(err)
+				panic(fmt.Sprintf("failed to build `nt` binary, required for integration testing: %s", err))
 			}
 		}
 	})
@@ -57,7 +57,7 @@ var _ = Describe("NTPeek Integration", func() {
 	})
 
 	Context("when running `nt p`", func() {
-		// note these credentials are burned, for test db. DO NOT AUTHORIZE
+		// note these credentials are burned, for test db
 		const TEST_DB_ID = "979bf78281914ca5895555168b2f7396u"
 		const TEST_ACCESS = "secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
 
