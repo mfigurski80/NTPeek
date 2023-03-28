@@ -50,6 +50,7 @@ func main() {
 	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
 	// check if just peeking
+	origArgs := os.Args
 	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") || os.Args[1] == "h" {
 		os.Args = append([]string{os.Args[0], "p"}, os.Args[1:]...)
 	}
@@ -76,9 +77,10 @@ func main() {
 		fmt.Print(fin)
 		exitOnError(err)
 	default:
-		fmt.Println("nt: unknown command", os.Args)
+		fmt.Println("nt: unknown command", origArgs)
 		fmt.Println()
 		showUsage()
+		os.Exit(1)
 	}
 }
 
@@ -118,4 +120,8 @@ func exitOnError(err error) {
 			Render(err.Error()),
 	)
 	os.Exit(1)
+}
+
+func Main() {
+	main()
 }
