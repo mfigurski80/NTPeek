@@ -93,10 +93,23 @@ var _ = Describe("Integration test", func() {
 			Expect(len(spl) > 2).To(BeTrue(), "should have at least 3 items")
 			Expect(code).To(Equal(0))
 		})
-		It("should match snapshot", func() {
-			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID, "p"}
-			output, _ := captureCrasher(toRun)
+		It("should match simple snapshot", func() {
+			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID,
+				"--select=\"%Class:right% // %Name:left% %Due:full% %_p% %_id:short%\""}
+			output, code := captureCrasher(toRun)
 			Expect(output).To(goldga.Match())
+			Expect(code).To(Equal(0))
+		})
+		It("should match complex snapshot", func() {
+			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID,
+				"--select=\"%Class:right% // %Name:left% %Due:full% %_p% %_id:short%\"",
+				"--sort", "Due:desc",
+				"--filter", "Due:date >= 2023/01/25",
+				"--limit=2",
+			}
+			output, code := captureCrasher(toRun)
+			Expect(output).To(goldga.Match())
+			Expect(code).To(Equal(0))
 		})
 	})
 
