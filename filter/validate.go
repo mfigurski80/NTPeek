@@ -9,10 +9,11 @@ import (
 /// BASIC CHECKS -- for primitives
 
 func ensureValidOperator(op *operator) error {
-	if op.Not {
-		if _, ok := negatableOperators[op.Op]; !ok {
+	if _, ok := defaultOperationKeyword[op.String()]; !ok {
+		if _, ok := negatableOperators[op.Op]; op.Not && !ok {
 			return fmt.Errorf(errType.NonNegatableOp, op.Op)
 		}
+		return fmt.Errorf(errType.InvalidKeyword, "Operator", op.Op, maps.Keys(defaultOperationKeyword))
 	}
 	return nil
 }
@@ -20,6 +21,13 @@ func ensureValidOperator(op *operator) error {
 var negatableOperators = map[string]struct{}{
 	"=":        {},
 	"CONTAINS": {},
+}
+
+func ensureValidType(t fieldTypeString) error {
+	if _, ok := supportedTypeOperations[t]; !ok {
+		return fmt.Errorf(errType.InvalidKeyword, "Type", t, maps.Keys(supportedTypeOperations))
+	}
+	return nil
 }
 
 /// TYPE/OP CHECKS

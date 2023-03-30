@@ -31,7 +31,8 @@ func (f *fieldName) Capture(values []string) error {
 // Field Type
 
 type fieldType struct {
-	Type string `@("select"|"checkbox"|"number"|"text"|"date"|"multiselect")`
+	// note validity is checked in validate.go
+	Type string `@("select"|"checkbox"|"number"|"text"|"date"|"multiselect"|Ident)`
 }
 
 type fieldTypeString string
@@ -49,7 +50,7 @@ const (
 
 type operator struct {
 	Not bool   `@("NOT"|"!")?`
-	Op  string `@("="|("<" "="?)|(">" "="?)|"CONTAINS"|"STARTS_WITH"|"ENDS_WITH")`
+	Op  string `@("="|("<" "="?)|(">" "="?)|"CONTAINS"|"STARTS_WITH"|"ENDS_WITH"|Ident)`
 }
 
 func (o *operator) String() string {
@@ -64,16 +65,14 @@ func (o *operator) String() string {
 /// FILTER RENDER
 
 func (f *filter) Render() (string, error) {
-	// get property
+	// get easy base values
 	propertyName := string(*f.Field)
-	// get type
 	typeName := fieldTypeString(f.Type.Type)
-	ntTypeName := typeName
-	if t, ok := typeNameOverride[f.Type.Type]; ok {
-		ntTypeName = fieldTypeString(t)
-	}
-	// check if valid operator
+	// check if valid primitives
 	if err := ensureValidOperator(f.Operator); err != nil {
+		return "", err
+	}
+	if err := ensureValidType(typeName); err != nil {
 		return "", err
 	}
 	// build filter condition
@@ -81,7 +80,10 @@ func (f *filter) Render() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf(template, propertyName, ntTypeName, condition), nil
+	if t, ok := typeNameOverride[f.Type.Type]; ok {
+		typeName = fieldTypeString(t)
+	}
+	return fmt.Sprintf(template, propertyName, typeName, condition), nil
 }
 
 const template = `{"property": "%s", "%s": {%s}}`
@@ -116,7 +118,7 @@ func getFilterCondition(f *filter, t fieldTypeString) (string, error) {
 		return fmt.Sprintf(`"%s": %s`, defaultOp, f.Value.Render()), nil
 	}
 	// bad operation... fail
-	return "", fmt.Errorf(errType.InvalidKeyword, "Operator", f.Operator.String())
+	return "", fmt.Errorf(errType.InvalidSyntax, t)
 }
 
 var operationValue = map[string]string{

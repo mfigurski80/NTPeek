@@ -345,28 +345,35 @@ var _ = Describe("Simple Filter Syntax", func() {
 			Expect(err.Error()).To(ContainSubstring("type/value mismatch"))
 		})
 		It("provides help text for bad type syntax", func() {
-			// TODO: fix
-			Skip("feature is not implemented")
 			_, err := f.ParseFilter([]string{`NAME:badtype = "VAL"`})
 			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("Type"))
 			Expect(err.Error()).To(ContainSubstring("badtype"))
-			Expect(err.Error()).To(ContainSubstring("supported types"))
+			Expect(err.Error()).To(ContainSubstring("support"))
+			sup := []string{"text", "number", "select", "multiselect", "date", "checkbox"}
+			for _, s := range sup {
+				Expect(err.Error()).To(ContainSubstring(s))
+			}
 		})
 		It("provides help text for bad operators", func() {
-			// TODO: fix
-			Skip("feature is not implemented")
 			_, err := f.ParseFilter([]string{`NAME:text BADOP "VAL"`})
 			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("Operator"))
 			Expect(err.Error()).To(ContainSubstring("BADOP"))
-			Expect(err.Error()).To(ContainSubstring("supported operators"))
+			Expect(err.Error()).To(ContainSubstring("support"))
+			sup := []string{"=", "CONTAINS", "STARTS_WITH", "ENDS_WITH"}
+			for _, s := range sup {
+				Expect(err.Error()).To(ContainSubstring(s))
+			}
 		})
 		It("provides help test for bad value syntax", func() {
-			// TODO: fix
-			Skip("feature is not implemented")
-			_, err := f.ParseFilter([]string{`NAME:text = 4-3`})
+			_, err := f.ParseFilter([]string{`NAME:text =`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("4-3"))
-			Expect(err.Error()).To(ContainSubstring("string"))
+			Expect(err.Error()).To(ContainSubstring("Value"))
+		})
+		It("accepts empty filters", func() {
+			_, err := f.ParseFilter([]string{})
+			Expect(err).To(BeNil())
 		})
 	})
 

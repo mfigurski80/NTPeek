@@ -2,6 +2,7 @@ package filter
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/participle/v2"
@@ -124,4 +125,16 @@ func (v emptyValue) String() string {
 }
 func (v emptyValue) Render() string {
 	return "EMPTY_VALUE_RENDER_NOT_USED" // wont be used
+}
+
+// Invalid Value
+type invalidValue struct {
+	Value []string `@Ident+`
+}
+
+func (v invalidValue) String() string {
+	return strings.Join(v.Value, " ")
+}
+func (v invalidValue) Render() string {
+	return "INVALID_VALUE_RENDER_NOT_USED" // wont be used
 }
