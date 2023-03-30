@@ -125,31 +125,3 @@ func (v emptyValue) String() string {
 func (v emptyValue) Render() string {
 	return "EMPTY_VALUE_RENDER_NOT_USED" // wont be used
 }
-
-/// Type/Value validation
-
-func valueMatchesType(val value, typ fieldTypeString) bool {
-	switch typ {
-	case Text:
-		_, ok := val.(stringValue)
-		return ok
-	case Number:
-		_, ok := val.(numberValue)
-		return ok
-	case Checkbox:
-		_, ok := val.(booleanValue)
-		return ok
-	case Date:
-		_, ok1 := val.(dateValue)
-		_, ok2 := val.(relativeDateValue)
-		return ok1 || ok2
-	case Select:
-		_, ok := val.(stringValue)
-		return ok
-	case Multiselect:
-		_, ok := val.(stringValue)
-		return ok
-	default:
-		return false
-	}
-}
