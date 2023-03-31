@@ -1,11 +1,19 @@
 package render
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
-func renderMultiSelect(fields []interface{}, _ renderRowConfig) ([]string, error) {
+func renderMultiSelect(fields []interface{}, config renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
+	if len(config.Modifiers) > 0 {
+		return res, fmt.Errorf(
+			errType.UnsupportedMod, config.Name, "multiselect", config.Modifiers[0],
+			_SUPPORTED_GLOBAL_MODIFIERS,
+		)
+	}
 	for i, field := range fields {
 		res[i] = ""
 		for _, s := range field.(map[string]interface{})["multi_select"].([]interface{}) {

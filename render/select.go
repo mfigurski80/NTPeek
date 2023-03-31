@@ -1,13 +1,21 @@
 package render
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
 /// Render select field with color
 
-func renderSelect(fields []interface{}, _ renderRowConfig) ([]string, error) {
+func renderSelect(fields []interface{}, config renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
+	if len(config.Modifiers) > 0 {
+		return res, fmt.Errorf(
+			errType.UnsupportedMod, config.Name, "select", config.Modifiers[0],
+			_SUPPORTED_GLOBAL_MODIFIERS,
+		)
+	}
 	for i, r := range fields {
 		body, ok := r.(map[string]interface{})["select"].(map[string]interface{})
 		if !ok {

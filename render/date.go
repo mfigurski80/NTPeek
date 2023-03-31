@@ -33,7 +33,10 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		case "full", "ful":
 			stringifyStrategy = _FULL
 		default:
-			return res, fmt.Errorf(errType.UnsupportedMod, config.Name, "date", mod, "[relative, simple, full]")
+			return res, fmt.Errorf(
+				errType.UnsupportedMod, config.Name, "date", mod,
+				append(_SUPPORTED_GLOBAL_MODIFIERS, "relative", "simple", "full"),
+			)
 		}
 	}
 	// render into result

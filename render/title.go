@@ -1,6 +1,8 @@
 package render
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mfigurski80/NTPeek/priority"
 )
@@ -12,6 +14,12 @@ var titleStyle = map[priority.Priority]lipgloss.Style{
 
 func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
+	if len(config.Modifiers) > 0 {
+		return res, fmt.Errorf(
+			errType.UnsupportedMod, config.Name, "title", config.Modifiers[0],
+			_SUPPORTED_GLOBAL_MODIFIERS,
+		)
+	}
 	for i, field := range fields {
 		f, ok := field.(map[string]interface{})["title"].([]interface{})
 		if !ok {
@@ -28,7 +36,6 @@ func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error)
 			res[i] = titleStyle[priority.LO].Render(res[i])
 		}
 	}
-	// TODO: support modifiers?
 	return res, nil
 }
 

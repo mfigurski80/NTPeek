@@ -84,18 +84,17 @@ var _ = Describe("`RenderTasks` function", func() {
 			Expect(err.Error()).To(ContainSubstring("UNDERSCORE_FIELD"))
 		})
 		It("should throw error on invalid modifiers", func() {
-			Skip("TODO: fix this test")
 			_, err := r.RenderTasks(defaultTasks, "%UNDERSCORE_FIELD:inv%", defaultPriorityConfig)
 			Expect(err).To(Not(BeNil()))
 			Expect(err.Error()).To(ContainSubstring("ERR"))
 		})
 		It("should list valid modifiers on invalid modifier error", func() {
-			Skip("TODO: fix this test")
 			_, err := r.RenderTasks(defaultTasks, "%UNDERSCORE_FIELD:inv%", defaultPriorityConfig)
 			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("Supported modifiers include"))
 			Expect(err.Error()).To(ContainSubstring("left"))
 			Expect(err.Error()).To(ContainSubstring("right"))
-			Expect(err.Error()).To(ContainSubstring("center"))
+			Expect(err.Error()).To(ContainSubstring("bold"))
 		})
 	})
 
