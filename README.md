@@ -41,7 +41,7 @@ A custom render string can be provided with a select flag, as shown in the examp
 
 - All elements inside the `%..%` tags are treated as field names: they are replaced with data corresponding to the field name within the Notion database, and can also be modified with some type-specific keywords by appending them like so: `:<modifier>`. Note that the render is type-specific. The list of currently supported render types includes: title, rich text, select, multiselect, date, checkbox.
 
-Global modifiers include formatting specifiers, especially `:right`, `:left`, `:center`: for aligning an entire column
+Global modifiers include formatting specifiers, especially `:right`, `:left`, `:center`: for aligning an entire column. The `:bold` modifier should ensure that field gets bolded.
 
 Type specific modifiers, currently, include:
 
