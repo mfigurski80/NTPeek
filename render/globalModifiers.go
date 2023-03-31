@@ -24,6 +24,10 @@ var _GLOBAL_RENDER_MODIFIERS map[string]modifierFunc = map[string]modifierFunc{
 		maxLen := getMaxLen(data)
 		return s.Width(maxLen).Align(lipgloss.Left)
 	},
+	"center": func(s lipgloss.Style, data []string) lipgloss.Style {
+		maxLen := getMaxLen(data)
+		return s.Width(maxLen).Align(lipgloss.Center)
+	},
 }
 
 var _SUPPORTED_GLOBAL_MODIFIERS = maps.Keys(_GLOBAL_RENDER_MODIFIERS)
