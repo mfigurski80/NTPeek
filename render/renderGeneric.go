@@ -22,6 +22,7 @@ var fRenderFuncs = map[string]renderRowFunction{
 	"multi_select": renderMultiSelect,
 	"date":         renderDate,
 	"checkbox":     renderCheckbox,
+	"number":       renderNumber,
 	"_id":          renderId,
 	"_p":           renderPriority,
 }

@@ -53,7 +53,6 @@ var _ = Describe("Render Generic Values", func() {
 	})
 
 	It("should render number fields", func() {
-		Skip("Not implemented")
 		s, err := r.RenderTasks(defaultTasks, "%NUMBER FIELD%", defaultPriorityConfig)
 		Expect(err).To(BeNil())
 		Expect(stripansi.Strip(s)).To(Equal("123\n"))

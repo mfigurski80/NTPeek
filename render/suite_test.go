@@ -122,7 +122,7 @@ const ntResponse = `{
 	},
 	"NUMBER FIELD": {
 		"type": "number",
-		"number": 123
+		"number": 123 
 	},
 	"DATE FIELD": {
 		"type": "date",
