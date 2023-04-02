@@ -33,14 +33,19 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		case "full", "ful":
 			stringifyStrategy = _FULL
 		default:
-			return res, fmt.Errorf(errType.UnsupportedMod, config.Name, "date", mod, "[relative, simple, full]")
+			return res, fmt.Errorf(
+				errType.UnsupportedMod, config.Name, "date", mod,
+				append(_SUPPORTED_GLOBAL_MODIFIERS, "relative", "simple", "full"),
+			)
 		}
 	}
 	// render into result
+	var gErr error
 	for i, field := range fields {
 		f, ok := field.(map[string]interface{})["date"].(map[string]interface{})
 		if !ok {
 			res[i] = ""
+			gErr = fmt.Errorf(errType.Internal, config.Name, field)
 			continue
 		}
 		date := f["start"].(string)
@@ -51,7 +56,7 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		relative := fmt.Sprintf("(%s)", stringifyDateMap[stringifyStrategy](t))
 		res[i] = overdueDateStyle[isOverdue(t)].Render(relative)
 	}
-	return res, nil
+	return res, gErr
 }
 
 /// Different ways of stringifying date

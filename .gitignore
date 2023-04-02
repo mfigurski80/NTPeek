@@ -2,3 +2,4 @@
 nt
 .build/*.txt
 *.gif
+coverprofile.out

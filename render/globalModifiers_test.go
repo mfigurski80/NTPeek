@@ -36,11 +36,13 @@ var _ = Describe("global render modifiers", func() {
 		It("properly handles the `right` modifier", func() {
 			res, err := r.RenderTasks(defaultTasks, "%name:right%", defaultPriorityConfig)
 			Expect(err).To(BeNil())
-			Expect(stripansi.Strip(res)).To(ContainSubstring("            VAL\n"))
+			Expect(stripansi.Strip(res)).To(ContainSubstring("             VAL\n"))
 		})
 
 		It("properly handles the `center` modifier", func() {
-			Skip("not implemented")
+			res, err := r.RenderTasks(defaultTasks, "%name:center%", defaultPriorityConfig)
+			Expect(err).To(BeNil())
+			Expect(stripansi.Strip(res)).To(ContainSubstring("      VAL       \n"))
 		})
 
 	})

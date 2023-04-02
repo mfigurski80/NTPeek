@@ -14,7 +14,10 @@ func renderId(fields []interface{}, config renderRowConfig) ([]string, error) {
 		if mod == "short" {
 			isShort = true
 		} else {
-			return nil, fmt.Errorf(errType.UnsupportedMod, config.Name, "id", mod, "[short]")
+			return nil, fmt.Errorf(
+				errType.UnsupportedMod, config.Name, "id", mod,
+				append(_SUPPORTED_GLOBAL_MODIFIERS, "short"),
+			)
 		}
 	}
 	// render result

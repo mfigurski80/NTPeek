@@ -49,18 +49,16 @@ var _ = Describe("Integration test", func() {
 
 	Context("when running `nt h`", func() {
 		It("should return help information", func() {
-			Skip("fix!")
 			toRun := []string{"./nt", "h"}
 			output, code := captureCrasher(toRun)
 			Expect(output).To(ContainSubstring("Usage"))
 			Expect(code).To(Equal(0), "should exit with code 0")
 		})
 		It("should match snapshot", func() {
-			Skip("fix!")
 			toRun := []string{"./nt", "h"}
 			output, code := captureCrasher(toRun)
-			Expect(code).To(Equal(0), "should exit with code 0")
 			Expect(output).To(goldga.Match())
+			Expect(code).To(Equal(0), "should exit with code 0")
 		})
 	})
 

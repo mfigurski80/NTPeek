@@ -3,6 +3,7 @@ package render
 import (
 	"github.com/acarl005/stripansi"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/exp/maps"
 )
 
 /// Global modifiers: can be applied to ANY field type because...
@@ -23,7 +24,13 @@ var _GLOBAL_RENDER_MODIFIERS map[string]modifierFunc = map[string]modifierFunc{
 		maxLen := getMaxLen(data)
 		return s.Width(maxLen).Align(lipgloss.Left)
 	},
+	"center": func(s lipgloss.Style, data []string) lipgloss.Style {
+		maxLen := getMaxLen(data)
+		return s.Width(maxLen).Align(lipgloss.Center)
+	},
 }
+
+var _SUPPORTED_GLOBAL_MODIFIERS = maps.Keys(_GLOBAL_RENDER_MODIFIERS)
 
 // Alter render function to apply global modifiers
 func withGlobalModifiers(renderFn renderRowFunction) renderRowFunction {

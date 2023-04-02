@@ -52,7 +52,7 @@ func main() {
 	buildPriorityConfig := priority.SetupPriorityFlags(allFlagSets)
 
 	// check if just peeking
-	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") || os.Args[1] == "h" {
+	if len(os.Args) < 2 || strings.HasPrefix(os.Args[1], "-") {
 		os.Args = append([]string{os.Args[0], "p"}, os.Args[1:]...)
 	}
 
@@ -60,7 +60,6 @@ func main() {
 	switch os.Args[1] {
 	case "v", "version":
 		fmt.Println("nt version:", Version)
-		return
 	case "p", "peek":
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])
@@ -77,6 +76,8 @@ func main() {
 		fin, err := render.RenderTasks(res, *selectRenderString, priorityConfig)
 		fmt.Print(fin)
 		exitOnError(err)
+	case "h", "help":
+		showUsage()
 	default:
 		fmt.Println("nt: unknown command", origArgs)
 		fmt.Println()

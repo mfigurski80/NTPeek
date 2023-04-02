@@ -2,6 +2,7 @@ package filter
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/participle/v2"
@@ -126,30 +127,14 @@ func (v emptyValue) Render() string {
 	return "EMPTY_VALUE_RENDER_NOT_USED" // wont be used
 }
 
-/// Type/Value validation
+// Invalid Value
+type invalidValue struct {
+	Value []string `@Ident+`
+}
 
-func valueMatchesType(val value, typ fieldTypeString) bool {
-	switch typ {
-	case Text:
-		_, ok := val.(stringValue)
-		return ok
-	case Number:
-		_, ok := val.(numberValue)
-		return ok
-	case Checkbox:
-		_, ok := val.(booleanValue)
-		return ok
-	case Date:
-		_, ok1 := val.(dateValue)
-		_, ok2 := val.(relativeDateValue)
-		return ok1 || ok2
-	case Select:
-		_, ok := val.(stringValue)
-		return ok
-	case Multiselect:
-		_, ok := val.(stringValue)
-		return ok
-	default:
-		return false
-	}
+func (v invalidValue) String() string {
+	return strings.Join(v.Value, " ")
+}
+func (v invalidValue) Render() string {
+	return "INVALID_VALUE_RENDER_NOT_USED" // wont be used
 }

@@ -39,7 +39,6 @@ var _ = Describe("Render Generic Values", func() {
 	})
 
 	It("should render text fields", func() {
-		Skip("Not implemented")
 		s, err := r.RenderTasks(defaultTasks, "%TEXT FIELD%", defaultPriorityConfig)
 		Expect(err).To(BeNil())
 		Expect(s).To(ContainSubstring("TEXT VALUE"))
@@ -53,7 +52,6 @@ var _ = Describe("Render Generic Values", func() {
 	})
 
 	It("should render number fields", func() {
-		Skip("Not implemented")
 		s, err := r.RenderTasks(defaultTasks, "%NUMBER FIELD%", defaultPriorityConfig)
 		Expect(err).To(BeNil())
 		Expect(stripansi.Strip(s)).To(Equal("123\n"))
@@ -120,6 +118,21 @@ var _ = Describe("Render Generic Values", func() {
 			s, err := r.RenderTasks(defaultTasks, "%_p%", conf)
 			Expect(err).To(BeNil())
 			Expect(s).To(ContainSubstring("!"))
+		})
+	})
+
+	Context("rendering a mis-formatted field", func() {
+		It("should throw an internal error", func() {
+			rNames := []string{"title", "rich_text", "select", "multi_select", "number", "date", "checkbox"}
+			for _, rName := range rNames {
+				task := types.NotionEntry{
+					"MULTI_SELECT FIELD": map[string]interface{}{"type": "multi_select", "multi_select": []interface{}{}},
+					rName:                map[string]interface{}{"type": rName, "foo": "bar"},
+				}
+				_, err := r.RenderTasks([]types.NotionEntry{task}, "%"+rName+"%", defaultPriorityConfig)
+				Expect(err).ToNot(BeNil(), "Expected error for "+rName)
+				Expect(err.Error()).To(ContainSubstring("internal"), "Expected internal error for "+rName)
+			}
 		})
 	})
 

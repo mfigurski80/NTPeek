@@ -47,10 +47,15 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"=", "!=", "CONTAINS", "!CONTAINS", "STARTS_WITH", "ENDS_WITH"}
 			_, err := f.ParseFilter([]string{`NAME:text > "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
+		})
+		It("should recognize unsupported value", func() {
+			_, err := f.ParseFilter([]string{`NAME:text = 2`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("type/value mismatch"))
 		})
 	})
 
@@ -69,7 +74,7 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"=", "!="}
 			_, err := f.ParseFilter([]string{`NAME:select > "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
@@ -97,7 +102,7 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"=", "!="}
 			_, err := f.ParseFilter([]string{`NAME:checkbox > "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
@@ -139,7 +144,7 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"=", "!=", "<", ">", "<=", ">="}
 			_, err := f.ParseFilter([]string{`NAME:number CONTAINS "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
@@ -161,7 +166,7 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"CONTAINS", "!CONTAINS"}
 			_, err := f.ParseFilter([]string{`NAME:multiselect = "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
@@ -266,7 +271,7 @@ var _ = Describe("Simple Filter Syntax", func() {
 			supported := []string{"=", "<", ">", "<=", ">="}
 			_, err := f.ParseFilter([]string{`NAME:date CONTAINS "VAL"`})
 			Expect(err).ToNot(BeNil())
-			Expect(err.Error()).To(ContainSubstring("support"))
+			Expect(err.Error()).To(ContainSubstring("operator"))
 			for _, s := range supported {
 				Expect(err.Error()).To(ContainSubstring(s))
 			}
@@ -292,12 +297,11 @@ var _ = Describe("Simple Filter Syntax", func() {
 			}
 		})
 		It("should disallow unsupported types", func() {
-			Skip("feature is not implemented")
 			t := []string{"checkbox"}
 			for _, s := range t {
 				_, err := f.ParseFilter([]string{fmt.Sprintf(`NAME:%s = EMPTY`, s)})
 				Expect(err).ToNot(BeNil(), fmt.Sprintf("type %s should not be supported", s))
-				Expect(err.Error()).To(ContainSubstring("not supported"))
+				Expect(err.Error()).To(ContainSubstring("type/value mismatch"))
 			}
 		})
 	})
@@ -327,12 +331,50 @@ var _ = Describe("Simple Filter Syntax", func() {
 		})
 	})
 
-	It("provides help text for bad types", func() {
-		Skip("feature is not implemented")
-		_, err := f.ParseFilter([]string{`NAME:badtype = "VAL"`})
-		Expect(err).ToNot(BeNil())
-		Expect(err.Error()).To(ContainSubstring("badtype"))
-		Expect(err.Error()).To(ContainSubstring("supported types"))
+	Context("with bad filter structure", func() {
+		It("provides help text for type/operator mismatch", func() {
+			_, err := f.ParseFilter([]string{`NAME:text < "TEST"`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("text"))
+			Expect(err.Error()).To(ContainSubstring("type/operator mismatch"))
+		})
+		It("provides help text for type/value mismatch", func() {
+			_, err := f.ParseFilter([]string{`NAME:date = "TEST"`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("date"))
+			Expect(err.Error()).To(ContainSubstring("type/value mismatch"))
+		})
+		It("provides help text for bad type syntax", func() {
+			_, err := f.ParseFilter([]string{`NAME:badtype = "VAL"`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("Type"))
+			Expect(err.Error()).To(ContainSubstring("badtype"))
+			Expect(err.Error()).To(ContainSubstring("support"))
+			sup := []string{"text", "number", "select", "multiselect", "date", "checkbox"}
+			for _, s := range sup {
+				Expect(err.Error()).To(ContainSubstring(s))
+			}
+		})
+		It("provides help text for bad operators", func() {
+			_, err := f.ParseFilter([]string{`NAME:text BADOP "VAL"`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("Operator"))
+			Expect(err.Error()).To(ContainSubstring("BADOP"))
+			Expect(err.Error()).To(ContainSubstring("support"))
+			sup := []string{"=", "CONTAINS", "STARTS_WITH", "ENDS_WITH"}
+			for _, s := range sup {
+				Expect(err.Error()).To(ContainSubstring(s))
+			}
+		})
+		It("provides help test for bad value syntax", func() {
+			_, err := f.ParseFilter([]string{`NAME:text =`})
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("Value"))
+		})
+		It("accepts empty filters", func() {
+			_, err := f.ParseFilter([]string{})
+			Expect(err).To(BeNil())
+		})
 	})
 
 })
