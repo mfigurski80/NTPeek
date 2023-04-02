@@ -11,14 +11,6 @@ automations:
         args:
           label: "{{ calc.etr }} min review"
           color: {{ 'E94637' if (calc.etr >= 20) else ('FBBD10' if (calc.etr >= 5) else '36A853') }}
-  code_experts:
-    if: 
-      - true
-    run:
-      - action: add-comment@v1
-        args:
-          comment: |
-            {{ repo | explainCodeExperts(gt=10) }}
   safe_changes:
     if:
       - {{ files | allDocs }}
