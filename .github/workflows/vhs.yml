@@ -32,7 +32,7 @@ jobs:
       run: go generate && go build -v -o nt
 
     - name: Setup VHS
-      run: sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
+      run: sudo apt-get update && sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
