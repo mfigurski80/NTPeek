@@ -17,7 +17,7 @@ type renderRowFunction func([]interface{}, renderRowConfig) ([]string, error)
 
 var fRenderFuncs = map[string]renderRowFunction{
 	"title":        renderTitle,
-	"rich_text":    renderTitle,
+	"rich_text":    renderText,
 	"select":       renderSelect,
 	"multi_select": renderMultiSelect,
 	"date":         renderDate,

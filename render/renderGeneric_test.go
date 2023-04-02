@@ -39,7 +39,6 @@ var _ = Describe("Render Generic Values", func() {
 	})
 
 	It("should render text fields", func() {
-		Skip("Not implemented")
 		s, err := r.RenderTasks(defaultTasks, "%TEXT FIELD%", defaultPriorityConfig)
 		Expect(err).To(BeNil())
 		Expect(s).To(ContainSubstring("TEXT VALUE"))

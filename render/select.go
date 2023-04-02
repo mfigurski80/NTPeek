@@ -16,10 +16,12 @@ func renderSelect(fields []interface{}, config renderRowConfig) ([]string, error
 			_SUPPORTED_GLOBAL_MODIFIERS,
 		)
 	}
+	var gErr error
 	for i, r := range fields {
 		body, ok := r.(map[string]interface{})["select"].(map[string]interface{})
 		if !ok {
 			res[i] = ""
+			gErr = fmt.Errorf(errType.Internal, config.Name, r)
 			continue
 		}
 		value := body["name"].(string)
@@ -28,9 +30,6 @@ func renderSelect(fields []interface{}, config renderRowConfig) ([]string, error
 			Background(lipgloss.Color(color.Bg)).
 			Foreground(lipgloss.Color(color.Fg)).
 			Render(value)
-		// res[i] = alignStyle.Render(res[i])
 	}
-	// TODO: support modifiers? global: right, center, left. local: no-color
-	// TODO: support priority?
-	return res, nil
+	return res, gErr
 }

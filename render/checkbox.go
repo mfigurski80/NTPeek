@@ -10,13 +10,19 @@ func renderCheckbox(fields []interface{}, config renderRowConfig) ([]string, err
 			_SUPPORTED_GLOBAL_MODIFIERS,
 		)
 	}
+	var gErr error
 	for i, field := range fields {
-		value := field.(map[string]interface{})["checkbox"].(bool)
+		value, ok := field.(map[string]interface{})["checkbox"].(bool)
+		if !ok {
+			res[i] = "   "
+			gErr = fmt.Errorf(errType.Internal, config.Name, "checkbox", "bool", field)
+			continue
+		}
 		if value {
 			res[i] = "[x]"
 		} else {
 			res[i] = "[ ]"
 		}
 	}
-	return res, nil
+	return res, gErr
 }

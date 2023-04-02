@@ -40,10 +40,12 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		}
 	}
 	// render into result
+	var gErr error
 	for i, field := range fields {
 		f, ok := field.(map[string]interface{})["date"].(map[string]interface{})
 		if !ok {
 			res[i] = ""
+			gErr = fmt.Errorf(errType.Internal, config.Name, field)
 			continue
 		}
 		date := f["start"].(string)
@@ -54,7 +56,7 @@ func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) 
 		relative := fmt.Sprintf("(%s)", stringifyDateMap[stringifyStrategy](t))
 		res[i] = overdueDateStyle[isOverdue(t)].Render(relative)
 	}
-	return res, nil
+	return res, gErr
 }
 
 /// Different ways of stringifying date
