@@ -14,13 +14,13 @@ func renderNumber(fields []interface{}, config renderRowConfig) ([]string, error
 	}
 	var gErr error
 	for i, r := range fields {
-		body, ok := r.(map[string]interface{})
+		num, ok := r.(map[string]interface{})["number"].(float64)
 		if !ok {
 			res[i] = ""
 			gErr = fmt.Errorf(errType.Internal, config.Name, r)
 			continue
 		}
-		res[i] = fmt.Sprintf("%v", body["number"].(float64))
+		res[i] = fmt.Sprintf("%v", num)
 	}
 	return res, gErr
 }
