@@ -3,6 +3,7 @@ package render_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/acarl005/stripansi"
 	"github.com/mfigurski80/NTPeek/priority"
@@ -10,6 +11,7 @@ import (
 	"github.com/mfigurski80/NTPeek/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gmeasure"
 )
 
 func TestRender(t *testing.T) {
@@ -98,6 +100,24 @@ var _ = Describe("`RenderTasks` function", func() {
 		})
 	})
 
+	It("runs benchmarks", Serial, Label("benchmark"), func() {
+		tasks := append(defaultTasks, defaultTasks[0], defaultTasks[0])
+		renderString := "%SELECT FIELD% %MULTI_SELECT FIELD% %NUMBER FIELD% %DATE FIELD% %TITLE FIELD% %CHECKBOX FIELD% %UNDERSCORE_FIELD%"
+		experiment := gmeasure.NewExperiment("render 10 tasks")
+		AddReportEntry(experiment.Name, experiment)
+		experiment.Sample(func(idx int) {
+			experiment.MeasureDuration("RenderTasks", func() {
+				for i := 0; i < 10; i++ {
+					r.RenderTasks(tasks, renderString, defaultPriorityConfig)
+				}
+			})
+		}, gmeasure.SamplingConfig{N: 2000, Duration: time.Minute})
+		stats := experiment.GetStats("render 10 tasks")
+		mean := stats.DurationFor(gmeasure.StatMean)
+		median := stats.DurationFor(gmeasure.StatMedian)
+		Expect(mean).To(BeNumerically("~", median, 0.1), "mean and median should be close")
+	})
+
 })
 
 // POST Nt Response `properties`: to be parsed into a NotionEntry
@@ -156,4 +176,8 @@ const ntResponse = `{
 		}
 	},
 	"_id": "1234-5678-9012-3456"
+}`
+
+const realNtResponse = `{
+
 }`
