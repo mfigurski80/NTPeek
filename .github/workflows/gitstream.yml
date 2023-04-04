@@ -32,7 +32,6 @@ on:
 
 jobs:
   gitStream:
-    needs: [🧪 Test]
     timeout-minutes: 5
     runs-on: ubuntu-latest
     name: gitStream workflow automation
