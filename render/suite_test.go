@@ -177,7 +177,3 @@ const ntResponse = `{
 	},
 	"_id": "1234-5678-9012-3456"
 }`
-
-const realNtResponse = `{
-
-}`
