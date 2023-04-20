@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - uses: actions/setup-go@v3
       with:
         go-version: 1.19
@@ -36,11 +36,9 @@ jobs:
 
     - id: run-benchmarks
       name: Run benchmarks
-      run: ginkgo -r --label-filter="benchmark" --succinct >> $GITHUB_OUTPUT
-
+      run: GITHUB_OUTPUT=$( ginkgo -r --label-filter="benchmark" --succinct )
 
     - name: Comment results
       uses: peter-evans/commit-comment@v2
       with:
-        body: ${{ steps.run-benchmarks.outputs }}
-    
+        body: ${{ steps.run-benchmarks.outputs.body }}
