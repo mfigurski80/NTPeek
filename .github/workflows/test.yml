@@ -23,6 +23,24 @@ jobs:
     - name: Run tests
       run: ginkgo -r -randomize-all -randomize-suites -race -trace -cover -procs=2 -poll-progress-after=10s -poll-progress-interval=10s --label-filter="! benchmark"
 
-    - name: Run benchmarks
-      run: ginkgo -r --label-filter="benchmark" --succinct
+  bench:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+    - name: Setup Ginkgo
+      run: go install github.com/onsi/ginkgo/v2/ginkgo
+
+    - id: run-benchmarks
+      name: Run benchmarks
+      run: ginkgo -r --label-filter="benchmark" --succinct >> $GITHUB_OUTPUT
+
+
+    - name: Comment results
+      uses: peter-evans/commit-comment@v2
+      with:
+        body: ${{ steps.run-benchmarks.outputs }}
     
