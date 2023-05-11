@@ -36,9 +36,15 @@ jobs:
 
     - id: run-benchmarks
       name: Run benchmarks
-      run: GITHUB_OUTPUT=$( ginkgo -r --label-filter="benchmark" --succinct )
+      run: ginkgo -r --label-filter="benchmark" --succinct
 
     - name: Comment results
       uses: peter-evans/commit-comment@v2
       with:
-        body: "Test Comment?"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+          This is a multi-line test comment
+          - With GitHub **Markdown** :sparkles:
+          - Created by [commit-comment][1]
+
+          [1]: https://github.com/peter-evans/commit-comment
