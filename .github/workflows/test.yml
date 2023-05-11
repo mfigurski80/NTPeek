@@ -41,4 +41,4 @@ jobs:
     - name: Comment results
       uses: peter-evans/commit-comment@v2
       with:
-        body: ${{ steps.run-benchmarks.outputs.body }}
+        body: "Test Comment?"
