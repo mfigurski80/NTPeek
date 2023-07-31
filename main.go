@@ -14,11 +14,8 @@ import (
 	"github.com/mfigurski80/NTPeek/render"
 )
 
-//go:generate bash .build/get_auth_token.sh
-//go:embed .build/auth_token.txt
-var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
-	Secret: notionAuthorizationSecret,
+	Secret: "",
 	DBId:   "",
 }
 
@@ -27,14 +24,6 @@ var AccessArgument = query.QueryAccessArgument{
 var Version string
 
 func main() {
-	// insufficient args
-	if len(os.Args) < 2 {
-		fmt.Println("nt: insufficient arguments", os.Args)
-		fmt.Println()
-		showUsage()
-		os.Exit(1)
-	}
-
 	// parse access
 	origArgs := make([]string, len(os.Args))
 	copy(origArgs, os.Args)
@@ -87,8 +76,11 @@ func main() {
 }
 
 func parseAccessArgument() {
-	// try parse auth secret, db id, in that order
-	if len(os.Args[1]) >= 50 && strings.HasPrefix(os.Args[1], "secret_") {
+	// read defaults from env
+	AccessArgument.Secret = os.Getenv("NOTION_SECRET")
+	AccessArgument.DBId = os.Getenv("NOTION_DEFAULT_DB")
+	// allow custom secret, db id, in that order
+	if len(os.Args) > 1 && len(os.Args[1]) >= 50 && strings.HasPrefix(os.Args[1], "secret_") {
 		AccessArgument.Secret = os.Args[1]
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 	}
@@ -100,13 +92,14 @@ func parseAccessArgument() {
 
 func requireAccess(a query.QueryAccessArgument) {
 	if a.Secret == "" || a.DBId == "" {
-		exitOnError(fmt.Errorf("Please specify a valid Notion Secret Token and Database ID as the first and second positional arguments for this command"))
+		exitOnError(fmt.Errorf("Please specify a valid Notion Secret Token and Database ID as environment variables NOTION_SECRET and NOTION_DEFAULT_DB\n  For help with creating these, please view the NTPeek github page"))
 	}
 }
 
 func showUsage() {
-	fmt.Printf("Usage: nt [nt-secret?] [nt-database?] <command? [args]>\n\n")
-	fmt.Println("Commands:")
+	fmt.Println("Usage: nt [nt-database?] <command? [args]>")
+	fmt.Println("  Note the tool relies on NOTION_SECRET being present in environment")
+	fmt.Println("\nCommands:")
 	fmt.Println("  v -- show version")
 	fmt.Println("  h -- show this help")
 	fmt.Println("  p|[none] -- show tasks from db")

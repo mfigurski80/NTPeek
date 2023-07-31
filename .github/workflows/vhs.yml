@@ -37,6 +37,9 @@ jobs:
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
 
+    - name: Setup BURNED Notion Secret
+      run: export NOTION_SECRET="secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+
     - name: VHS Recordings 📼
       run: for file in images/*.tape; do vhs "$file"; done
 

@@ -2,12 +2,12 @@
 
 # Notion Database Peek
 
-Library designed to read, and perform small updates to a Notion Database from your terminal, perfect for cloud-based todos. The latest version also includes the ability to specify query field names and pass in the database id and notion token as positional arguments.
+Library designed to read, and perform small updates to a Notion Database from your terminal, perfect for cloud-based todos. The latest version also includes the ability to specify query field names to render, and custom filters.
 
 
 ## Basic Usage
 
-Default usage requires just the token and database id (long string id in url of notion database). Due to the length of this command, we recommend setting up a bash alias in your bashrc, which will make it easy to type commands for a specific notion database, as shown here:
+Default usage requires just the token and a default database id (long string id in url of notion database) embedded as environment variables, as shown below -- this can be put into your terminal `~/.profile`. However, the first argument can also be a custom database id: we recommend setting up a bash alias for each database, which will make it easy to type commands for a specific notion database, as shown here:
 
 ![Alias Peeking Usage](http://ntpeek-usage.surge.sh/alias_usage.gif)
 
@@ -22,9 +22,11 @@ The first positional argument is reserved for the Notion Access Token: you will 
 
 2) Clicking on 'New Integration', and filling out the form as you wish (although we do recommend setting the name to NTPeek and using the [official NTPeek Integration logo](https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fpublic.notion-static.com%2F9e0bc46d-c5eb-44d6-b1cb-c3542b4d08c0%2Ftenor.gif?id=170a6e36-bec1-44fa-906e-fe06c92f4e8e&table=bot&userId=d9f1afdc-e094-4675-bbb2-e8b8dd390e8e&cache=v2). Make sure to select the correct 'Associated Workspace'. Notably, the current version needs only read permission.
 
-3) Saving the result 'Internal Integration Token' -- you can pass it as the first positional argument when calling the tool from the command line
+3) Saving the result 'Internal Integration Token' into a `NOTION_SECRET` environment variable
 
-You can install Notion Database Peek by downloading the pre-compiled binary from the releases tab in Github and selecting the architecture/os that corresponds to your machine. Remember to add the binary to your path.
+4) Find the default database you want to use within notion. Get its ID (long string in url) and save into a `NOTION_DEFAULT_DB` environment variable
+
+You can install Notion Database Peek by downloading the pre-compiled binary from the releases tab in Github and selecting the architecture/os that corresponds to your machine
 
 
 ## Tailoring to Custom Database 

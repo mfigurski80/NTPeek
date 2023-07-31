@@ -23,6 +23,11 @@ func TestNTPeek(t *testing.T) {
 
 var _ = Describe("Integration test", func() {
 
+	// Env vars for testing. note, these are burned
+	// https://www.notion.so/mikof/979bf78281914ca5895555168b2f7396?v=2a121bd645e5476fb0c6a0fe3d44366d
+	const TEST_DB_ID = "979bf78281914ca5895555168b2f7396"
+	const TEST_ACCESS = "secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+
 	BeforeEach(func() {
 		inf, err := os.Stat("./nt")
 		if inf == nil || err != nil {
@@ -35,6 +40,8 @@ var _ = Describe("Integration test", func() {
 				panic(fmt.Sprintf("failed to build `nt` binary, required for integration testing: %s\n%s", err, string(out)))
 			}
 		}
+		os.Setenv("NOTION_SECRET", TEST_ACCESS)
+		os.Setenv("NOTION_DEFAULT_DB", TEST_DB_ID)
 	})
 
 	Context("when running `nt v`", func() {
@@ -63,27 +70,8 @@ var _ = Describe("Integration test", func() {
 	})
 
 	Context("when running `nt p`", func() {
-		// note these credentials are burned, for test db
-		const TEST_DB_ID = "979bf78281914ca5895555168b2f7396"
-		const TEST_ACCESS = "secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
-		// https://www.notion.so/mikof/979bf78281914ca5895555168b2f7396?v=2a121bd645e5476fb0c6a0fe3d44366d
-
-		When("no db id or token are provided", func() {
-			It("should fail with error message", func() {
-				toRun := []string{"./nt", "p"}
-				output, code := captureCrasher(toRun)
-				Expect(output).To(ContainSubstring("Secret"))
-				Expect(output).To(ContainSubstring("Database"))
-				Expect(code).To(Equal(1))
-			})
-			It("should match snapshot", func() {
-				toRun := []string{"./nt", "p"}
-				output, _ := captureCrasher(toRun)
-				Expect(output).To(goldga.Match())
-			})
-		})
 		It("should return a list of items", func() {
-			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID, "p"}
+			toRun := []string{"./nt", "p"}
 			output, code := captureCrasher(toRun)
 			Expect(output).ToNot(ContainSubstring("Usage"))
 			Expect(output).ToNot(ContainSubstring("Err"))
@@ -91,15 +79,21 @@ var _ = Describe("Integration test", func() {
 			Expect(len(spl) > 2).To(BeTrue(), "should have at least 3 items")
 			Expect(code).To(Equal(0))
 		})
+		It("should be default", func() {
+			toRun := []string{"./nt"}
+			output, code := captureCrasher(toRun)
+			Expect(output).ToNot(ContainSubstring("Usage"))
+			Expect(code).To(Equal(0))
+		})
 		It("should match simple snapshot", func() {
-			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID,
+			toRun := []string{"./nt",
 				"--select=\"%Class:right% // %Name:left% %Due:full% %_p% %_id:short%\""}
 			output, code := captureCrasher(toRun)
 			Expect(output).To(goldga.Match())
 			Expect(code).To(Equal(0))
 		})
 		It("should match complex snapshot", func() {
-			toRun := []string{"./nt", TEST_ACCESS, TEST_DB_ID,
+			toRun := []string{"./nt",
 				"--select=\"%Class:right% // %Name:left% %Due:full% %_p% %_id:short%\"",
 				"--sort", "Due:desc",
 				"--filter", "Due:date >= 2023/01/25",
@@ -112,17 +106,6 @@ var _ = Describe("Integration test", func() {
 	})
 
 	Context("when running malformed commands", func() {
-		It("errors on no arguments", func() {
-			toRun := []string{"./nt"}
-			output, code := captureCrasher(toRun)
-			Expect(output).To(ContainSubstring("argument"))
-			Expect(code).To(Equal(1))
-		})
-		It("matches no args snapshot", func() {
-			toRun := []string{"./nt"}
-			output, _ := captureCrasher(toRun)
-			Expect(output).To(goldga.Match())
-		})
 		It("errors on unknown command", func() {
 			toRun := []string{"./nt", "unknown"}
 			output, code := captureCrasher(toRun)
