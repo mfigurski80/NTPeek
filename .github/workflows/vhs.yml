@@ -34,8 +34,11 @@ jobs:
     - name: Setup Tools: VHS, Surge, jq
       run: sudo apt-get update && sudo apt-get install ffmpeg jq && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2 && npm install -g surge
 
-    - name: Setup BURNED Notion Config
-      run: export NOTION_SECRET="secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934" && export NOTION_DEFAULT_DB="979bf78281914ca5895555168b2f7396"
+    - name: Setup BURNED Notion Token
+      run: export NOTION_SECRET="secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+
+    - name: Setup Default Notion DB
+      run: export NOTION_DEFAULT_DB="979bf78281914ca5895555168b2f7396"
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
