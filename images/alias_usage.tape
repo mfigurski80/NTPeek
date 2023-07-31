@@ -5,11 +5,11 @@ Set Height 500
 
 # Note: This token is already burned
 Hide
-Type "export NT_TOKEN=secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
+Type "export NOTION_SECRET=secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
 Enter
-Type "export NT_DB=979bf78281914ca5895555168b2f7396"
+Type "export NOTION_DEFAULT_DB=979bf78281914ca5895555168b2f7396"
 Enter
-Type 'alias nta="./nt $NT_TOKEN $NT_DB"'
+Type 'alias nta="./nt $NOTION_DEFAULT_DB"'
 Enter
 Show
 
