@@ -47,7 +47,7 @@ jobs:
       run: for file in images/*.tape; do vhs "$file"; done
 
     - name: Reset Time
-      run: sudo date -s $(curl "http://worldtimeapi.org/api/timezone/America/New_York" | jq '.datetime')
+      run: sudo date -s "@$(curl 'http://worldtimeapi.org/api/timezone/America/New_York' | jq '.unixtime')"
 
     - name: Setup Upload
       run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
