@@ -31,7 +31,7 @@ jobs:
     - name: Build Binary
       run: go generate && go build -v -o nt
 
-    - name: Setup Tools: VHS, Surge, jq
+    - name: Setup Tools
       run: sudo apt-get update && sudo apt-get install ffmpeg jq && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2 && npm install -g surge
 
     - name: Setup BURNED Notion Token
