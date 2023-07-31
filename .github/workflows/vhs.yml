@@ -31,20 +31,23 @@ jobs:
     - name: Build Binary
       run: go generate && go build -v -o nt
 
-    - name: Setup VHS
-      run: sudo apt-get update && sudo apt-get install ffmpeg && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2
+    - name: Setup Tools: VHS, Surge, jq
+      run: sudo apt-get update && sudo apt-get install ffmpeg jq && sudo snap install ttyd --classic && go install github.com/charmbracelet/vhs@v0.2 && npm install -g surge
+
+    - name: Setup BURNED Notion Config
+      run: export NOTION_SECRET="secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934" && export NOTION_DEFAULT_DB="979bf78281914ca5895555168b2f7396"
 
     - name: Fake Time
       run: sudo date -s "2023-01-23 12:00:00"
 
-    - name: Setup BURNED Notion Secret
-      run: export NOTION_SECRET="secret_rhsxWWqTWhEd1pLlEOLB2z5eVfilG1iqPGPjeqSU934"
-
     - name: VHS Recordings 📼
       run: for file in images/*.tape; do vhs "$file"; done
 
+    - name: Reset Time
+      run: sudo date -s $(curl "http://worldtimeapi.org/api/timezone/America/New_York" | jq '.datetime')
+
     - name: Setup Upload
-      run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD && npm install -g surge
+      run: mkdir UPLOAD && mv images/*.gif UPLOAD && echo "Usage gif storage for mfigurski80/NTPeek" > UPLOAD/index.html && ls UPLOAD
 
     - name: Upload
       run: surge UPLOAD ntpeek-usage.surge.sh --token ${{ secrets.SURGE_TOKEN }}

@@ -7,6 +7,3 @@ Type "./nt 979bf78281914ca5895555168b2f7396"
 Sleep 800ms
 Enter
 Sleep 8 
-
-
-

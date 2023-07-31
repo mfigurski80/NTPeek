@@ -3,13 +3,8 @@ Set Shell bash
 Set Width 1200
 Set Height 400
 
-Hide
-Type `alias nta="./nt 979bf78281914ca5895555168b2f7396" && clear`
-Enter
-Show
-
 Sleep 800ms
-Type `nta \`
+Type `nt \`
 Enter
 Type `  --filter="Due:date <= NEXT 3 DAY" \`
 Enter
