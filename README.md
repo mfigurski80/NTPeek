@@ -1,4 +1,4 @@
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fmfigurski80%2FNTPeek&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23FFFFFF&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![🧪 Test](https://github.com/mfigurski80/NTPeek/actions/workflows/test.yml/badge.svg)](https://github.com/mfigurski80/NTPeek/actions/workflows/test.yml)
 
 # Notion Database Peek
 
@@ -123,3 +123,5 @@ This project is built in golang. You can install it yourself, if you have go dev
 ## Screenshots
 
 ![Notion Database Peek](images/Demo.png)
+
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fmfigurski80%2FNTPeek&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23FFFFFF&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
