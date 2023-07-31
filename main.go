@@ -14,11 +14,8 @@ import (
 	"github.com/mfigurski80/NTPeek/render"
 )
 
-//go:generate bash .build/get_auth_token.sh
-//go:embed .build/auth_token.txt
-var notionAuthorizationSecret string
 var AccessArgument = query.QueryAccessArgument{
-	Secret: notionAuthorizationSecret,
+	Secret: "",
 	DBId:   "",
 }
 
