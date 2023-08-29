@@ -49,7 +49,7 @@ var _ = Describe("Integration test", func() {
 			toRun := []string{"./nt", "v"}
 			output, code := captureCrasher(toRun)
 			Expect(output).To(ContainSubstring("version"))
-			Expect(output).To(MatchRegexp(`[0-9a-f]{40}`), "should contain a git commit hash")
+			Expect(output).To(MatchRegexp(`v\d+\.\d+`), "should contain a git version tag")
 			Expect(code).To(Equal(0), "should exit with code 0")
 		})
 	})
