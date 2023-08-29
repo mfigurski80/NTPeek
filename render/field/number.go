@@ -1,10 +1,10 @@
-package render
+package renderField
 
 import "fmt"
 
 /// Render number field
 
-func renderNumber(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderNumber(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

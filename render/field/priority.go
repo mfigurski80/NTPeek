@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/mfigurski80/NTPeek/priority"
 )
 
-func renderPriority(_ []interface{}, config renderRowConfig) ([]string, error) {
+func RenderPriority(_ []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(*config.Priority))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

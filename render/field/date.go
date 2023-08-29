@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ var overdueDateStyle = map[bool]lipgloss.Style{
 
 /// Render date field relative to local time
 
-func renderDate(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderDate(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	// parse modifiers
 	stringifyStrategy := _RELATIVE

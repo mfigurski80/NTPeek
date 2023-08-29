@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func renderId(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderId(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	// parse mod
 	isShort := false

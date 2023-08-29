@@ -1,8 +1,8 @@
-package render
+package renderField
 
 import "fmt"
 
-func renderCheckbox(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderCheckbox(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

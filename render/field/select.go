@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 /// Render select field with color
 
-func renderSelect(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderSelect(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

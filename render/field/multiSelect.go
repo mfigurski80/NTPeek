@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func renderMultiSelect(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderMultiSelect(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	res := make([]string, len(fields))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

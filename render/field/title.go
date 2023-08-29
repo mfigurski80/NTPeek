@@ -1,4 +1,4 @@
-package render
+package renderField
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 	"github.com/mfigurski80/NTPeek/priority"
 )
 
-func renderTitle(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderTitle(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	return renderGenericRichText(fields, config, title)
 }
 
-func renderText(fields []interface{}, config renderRowConfig) ([]string, error) {
+func RenderText(fields []interface{}, config RenderRowConfig) ([]string, error) {
 	return renderGenericRichText(fields, config, text)
 }
 
@@ -24,7 +24,7 @@ const (
 	title ntRichTextType = "title"
 )
 
-func renderGenericRichText(fields []interface{}, config renderRowConfig, tp ntRichTextType) ([]string, error) {
+func renderGenericRichText(fields []interface{}, config RenderRowConfig, tp ntRichTextType) ([]string, error) {
 	res := make([]string, len(fields))
 	if len(config.Modifiers) > 0 {
 		return res, fmt.Errorf(

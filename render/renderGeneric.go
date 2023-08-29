@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mfigurski80/NTPeek/priority"
+	f "github.com/mfigurski80/NTPeek/render/field"
 	"golang.org/x/exp/maps"
 )
 
@@ -13,18 +14,16 @@ type renderRowConfig struct {
 	Priority  *[]priority.Priority
 }
 
-type renderRowFunction func([]interface{}, renderRowConfig) ([]string, error)
-
-var fRenderFuncs = map[string]renderRowFunction{
-	"title":        renderTitle,
-	"rich_text":    renderText,
-	"select":       renderSelect,
-	"multi_select": renderMultiSelect,
-	"date":         renderDate,
-	"checkbox":     renderCheckbox,
-	"number":       renderNumber,
-	"_id":          renderId,
-	"_p":           renderPriority,
+var fRenderFuncs = map[string]f.RenderRowFunction{
+	"title":        f.RenderTitle,
+	"rich_text":    f.RenderText,
+	"select":       f.RenderSelect,
+	"multi_select": f.RenderMultiSelect,
+	"date":         f.RenderDate,
+	"checkbox":     f.RenderCheckbox,
+	"number":       f.RenderNumber,
+	"_id":          f.RenderId,
+	"_p":           f.RenderPriority,
 }
 
 func renderNil(vals []interface{}, _ renderRowConfig) ([]string, error) {
@@ -32,7 +31,7 @@ func renderNil(vals []interface{}, _ renderRowConfig) ([]string, error) {
 }
 
 // Figure out field type and return single common RenderRowFunction
-func getGenericRenderFunc(field []interface{}, name string) (renderRowFunction, error) {
+func getGenericRenderFunc(field []interface{}, name string) (f.RenderRowFunction, error) {
 	fVals, ok := field[0].(map[string]interface{})
 	if !ok {
 		if f, ok := fRenderFuncs[name]; ok {
