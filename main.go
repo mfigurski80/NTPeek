@@ -24,6 +24,10 @@ var AccessArgument = query.QueryAccessArgument{
 var Version string
 
 func main() {
+	if Version == "" {
+		fmt.Println("warning: version information is not set. Please run `go generate` while building to set version")
+	}
+
 	// parse access
 	origArgs := make([]string, len(os.Args))
 	copy(origArgs, os.Args)
@@ -48,7 +52,7 @@ func main() {
 	// parse user command
 	switch os.Args[1] {
 	case "v", "version":
-		fmt.Println("nt version:", Version)
+		fmt.Printf("nt version: %s", Version)
 	case "p", "peek":
 		requireAccess(AccessArgument)
 		peekArguments.Parse(os.Args[2:])

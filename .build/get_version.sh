@@ -1,2 +1,2 @@
 #!/bin/bash
-git log --format="%H" -n 1 > .build/version.txt
+git describe --tags > .build/version.txt
